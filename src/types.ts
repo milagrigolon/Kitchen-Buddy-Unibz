@@ -3,14 +3,19 @@
 export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'other';
 export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
+export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too_ripe';
 
 export interface Ingredient {
     id: string;
-    name: string;                   // UNICO CAMPO OBBLIGATORIO
-    category?: Category | null;
+    name: string;                   
+    category: Category | null;
     location?: Location | null;
     confectionType?: ConfectionType | null;
-    expirationDate?: string;        // Data esatta o descrizione (es. "1 week from now")
-    expirationTimestamp?: number | null; // Usato per ordinare e filtrare
-    createdAt: number;
+    expirationDate?: string;        // Date or description
+    expirationTimestamp?: number | null; 
+    ripeness?: RipenessStatus;
+    isOpen?: boolean;
+    quantity?: number;
+    createdAt: string;
 }
+
