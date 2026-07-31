@@ -5,17 +5,17 @@ export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too_ripe';
 
-export interface Ingredient {
+export type Ingredient = {
     id: string;
-    name: string;                   
+    name: string;
     category: Category | null;
     location?: Location | null;
     confectionType?: ConfectionType | null;
     expirationDate?: string;        // Date or description
-    expirationTimestamp?: number | null; 
+    expirationTimestamp?: number | null;
     ripeness?: RipenessStatus;
     isOpen?: boolean;
     quantity?: number;
     createdAt: string;
-}
+};
 
