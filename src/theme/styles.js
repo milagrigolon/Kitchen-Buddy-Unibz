@@ -1,0 +1,256 @@
+// src/theme/styles.ts
+
+import { Platform, StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
+
+const FONT_FAMILY = Platform.select({
+    ios: 'System',
+    android: 'Roboto',
+    default: 'sans-serif',
+});
+
+export const COLORS = {
+    primary: '#2563eb',
+    primaryDark: '#1e40af',
+    primaryLight: '#dbeafe',
+    secondary: '#94a3b8',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+    background: '#f8fafc',
+    white: '#ffffff',
+    textDark: '#0f172a',
+    textMuted: '#64748b',
+    border: '#cbd5e1',
+    chipBg: '#f1f5f9',
+};
+
+export const styles = StyleSheet.create({
+    flex1: {
+        flex: 1,
+        backgroundColor: COLORS.background,
+    },
+    headerContainer: {
+        height: 100,
+        paddingTop: Constants.statusBarHeight,
+        backgroundColor: COLORS.primary,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        color: COLORS.white,
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginHorizontal: 15,
+        fontFamily: FONT_FAMILY,
+    },
+    formPadding: {
+        padding: 20,
+    },
+    label: {
+        fontWeight: 'bold',
+        color: COLORS.textDark,
+        marginTop: 10,
+        marginBottom: 5,
+        fontFamily: FONT_FAMILY,
+    },
+    input: {
+        backgroundColor: COLORS.white,
+        padding: 12,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        marginBottom: 15,
+        fontSize: 16,
+        color: COLORS.textDark,
+        fontFamily: FONT_FAMILY,
+    },
+    mainButton: {
+        padding: 15,
+        borderRadius: 20,
+        alignItems: 'center',
+        elevation: 2,
+        marginTop: 10,
+        backgroundColor: COLORS.primary,
+    },
+    buttonText: {
+        color: COLORS.white,
+        fontWeight: 'bold',
+        fontSize: 16,
+        fontFamily: FONT_FAMILY,
+    },
+    chipGroup: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginVertical: 6,
+    },
+    queryButtonRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 12,
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.chipBg,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    chipSelected: {
+        backgroundColor: COLORS.primary,
+        borderColor: COLORS.primaryDark,
+    },
+    chipText: {
+        fontSize: 14,
+        color: COLORS.textDark,
+        fontWeight: '500',
+        fontFamily: FONT_FAMILY,
+    },
+    chipTextSelected: {
+        color: COLORS.white,
+        fontWeight: 'bold',
+        fontFamily: FONT_FAMILY,
+    },
+    clearButton: {
+        backgroundColor: COLORS.white,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: COLORS.danger,
+    },
+    clearButtonText: {
+        fontSize: 14,
+        color: COLORS.danger,
+        fontWeight: 'bold',
+        fontFamily: FONT_FAMILY,
+    },
+    tabBar: {
+        flexDirection: 'row',
+        height: 65,
+        backgroundColor: COLORS.white,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.border,
+    },
+    tabItem: {
+        flex: 1,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tabActive: {
+        borderTopWidth: 3,
+        borderTopColor: COLORS.primary,
+    },
+    tabText: {
+        color: COLORS.textMuted,
+        fontWeight: '600',
+        fontFamily: FONT_FAMILY,
+    },
+    tabTextActive: {
+        color: COLORS.primary,
+        fontWeight: 'bold',
+        fontFamily: FONT_FAMILY,
+    },
+    listContainer: {
+        flex: 1,
+        padding: 15,
+    },
+    controlContainer: {
+        backgroundColor: COLORS.white,
+        padding: 12,
+        borderRadius: 15,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    controlLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.textDark,
+        marginBottom: 8,
+        textAlign: 'center',
+        fontFamily: FONT_FAMILY,
+    },
+    buttonGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+    },
+    dayButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        backgroundColor: COLORS.chipBg,
+    },
+    dayButtonActive: {
+        backgroundColor: COLORS.primary,
+    },
+    dayButtonText: {
+        fontSize: 13,
+        color: COLORS.textDark,
+        fontWeight: '500',
+        fontFamily: FONT_FAMILY,
+    },
+    dayButtonTextActive: {
+        color: COLORS.white,
+        fontWeight: 'bold',
+        fontFamily: FONT_FAMILY,
+    },
+    emptyContainer: {
+        marginTop: 40,
+        alignItems: 'center',
+    },
+    emptyText: {
+        color: COLORS.textMuted,
+        fontSize: 15,
+        fontFamily: FONT_FAMILY,
+    },
+    card: {
+        backgroundColor: COLORS.white,
+        padding: 15,
+        marginHorizontal: 15,
+        marginVertical: 6,
+        borderRadius: 20,
+        elevation: 2,
+        borderLeftWidth: 6,
+        borderLeftColor: COLORS.primary,
+    },
+    cardRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    cardTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginLeft: 10,
+        color: COLORS.textDark,
+        fontFamily: FONT_FAMILY,
+    },
+    cardExp: {
+        color: COLORS.danger,
+        fontWeight: 'bold',
+        marginTop: 5,
+        fontFamily: FONT_FAMILY,
+    },
+    cardLoc: {
+        color: COLORS.textMuted,
+        fontSize: 13,
+        marginTop: 2,
+        fontFamily: FONT_FAMILY,
+    },
+    sectionTitle: {
+        textAlign: 'center',
+        fontWeight: 'bold',
+        color: COLORS.textMuted,
+        marginTop: 10,
+        marginBottom: 10,
+        fontFamily: FONT_FAMILY,
+    },
+});

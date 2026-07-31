@@ -1,4 +1,7 @@
 // src/types.ts
+// Shared domain model used across the app.
+// This file defines the ingredient shape and the supported enum-like values
+// for category, location, confection type, and ripeness.
 
 export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'other';
 export type Location = 'fridge' | 'freezer' | 'pantry';
