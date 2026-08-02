@@ -1,6 +1,6 @@
 // src/utils/helpers.ts
 
-import { Ingredient, Category, Location, ConfectionType } from '../types';
+import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit } from '../types';
 import { MS_PER_DAY } from './constants';
 
 /**
@@ -69,6 +69,14 @@ export interface IngredientDraftInput {
   confectionType: ConfectionType | null;
   expiration: string;
   createdAt: string;
+  quantity?: number;
+  unit?: Unit;
+  ripeness?: RipenessStatus | null;
+  isOpen?: boolean;
+  isFrozen?: boolean;
+  barcode?: string | null;
+  brand?: string | null;
+  imageUrl?: string | null;
 }
 
 export const buildIngredientFromDraft = ({
@@ -79,6 +87,14 @@ export const buildIngredientFromDraft = ({
   confectionType,
   expiration,
   createdAt,
+  quantity,
+  unit,
+  ripeness,
+  isOpen,
+  isFrozen,
+  barcode,
+  brand,
+  imageUrl,
 }: IngredientDraftInput): Ingredient => {
   const { finalExp, timestamp } = parseExpiration(expiration);
 
@@ -91,6 +107,14 @@ export const buildIngredientFromDraft = ({
     expirationDate: finalExp,
     expirationTimestamp: timestamp,
     createdAt,
+    quantity,
+    unit,
+    ripeness,
+    isOpen,
+    isFrozen,
+    barcode,
+    brand,
+    imageUrl,
   };
 };
 
