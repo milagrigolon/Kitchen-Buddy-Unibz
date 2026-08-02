@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BarCodeScanner, PermissionResponse } from 'expo-barcode-scanner';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 interface BarcodeScannerModalProps {
   visible: boolean;
@@ -13,7 +13,7 @@ interface BarcodeScannerModalProps {
  * scanner overlay for the add-ingredient workflow.
  */
 export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({ visible, onClose, onBarcodeScanned }) => {
-  const [permission, setPermission] = useState<PermissionResponse | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
@@ -24,10 +24,9 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({ visibl
     let isMounted = true;
 
     const askForPermission = async (): Promise<void> => {
-      const response = await BarCodeScanner.requestPermissionsAsync();
+      await requestPermission();
 
       if (isMounted) {
-        setPermission(response);
         setScanned(false);
       }
     };
@@ -37,7 +36,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({ visibl
     return () => {
       isMounted = false;
     };
-  }, [visible]);
+  }, [requestPermission, visible]);
 
   const handleScan = (result: { data: string }): void => {
     if (scanned) {
@@ -60,7 +59,13 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({ visibl
         </View>
 
         {permission?.granted ? (
-          <BarCodeScanner onBarCodeScanned={handleScan} style={StyleSheet.absoluteFill} />
+          <CameraView
+            onBarcodeScanned={handleScan}
+            barcodeScannerSettings={{
+              barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128'],
+            }}
+            style={StyleSheet.absoluteFill}
+          />
         ) : (
           <View style={styles.permissionContainer}>
             <Text style={styles.permissionText}>
