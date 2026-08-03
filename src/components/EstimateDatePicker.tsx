@@ -19,12 +19,12 @@ const QUICK_ESTIMATES = [
  */
 export const EstimateDatePicker: React.FC<EstimateDatePickerProps> = ({ value, onChange }) => (
   <View>
-    <Text style={styles.label}>Expiration date or estimate</Text>
+    <Text style={styles.label}>Expiration date (e.g. 1 week, 10 days, 1 month)</Text>
     <TextInput
       style={styles.input}
       value={value}
       onChangeText={onChange}
-      placeholder="DD/MM/YYYY or 1 week / 10 days / 1 month"
+      placeholder="DD/MM/YYYY"
     />
     <View style={styles.buttonGroup}>
       {QUICK_ESTIMATES.map((option) => (

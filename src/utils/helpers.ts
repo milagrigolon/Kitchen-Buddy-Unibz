@@ -199,3 +199,10 @@ export const filterIngredients = (
     return matchesSearch && matchesLocation && matchesCategory && matchesConfection;
   });
 };
+
+/**
+ * Checks if the selected confection type is 'fresh', used for Ripeness status
+ */
+export const isFreshConfection = (confection: ConfectionType | null | undefined): boolean => {
+  return confection === 'fresh';
+};

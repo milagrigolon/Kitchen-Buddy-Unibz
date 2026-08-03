@@ -33,8 +33,8 @@ export const CONFECTIONS: OptionItem<ConfectionType>[] = [
 export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
   { label: 'Green', value: 'green', icon: 'leaf', iconFamily: 'material' },
   { label: 'Ripe', value: 'ripe', icon: 'check-circle', iconFamily: 'material' },
-  { label: 'Advanced', value: 'advanced', icon: 'warning', iconFamily: 'material' },
-  { label: 'Too Ripe', value: 'too_ripe', icon: 'alert-circle', iconFamily: 'material' },
+  { label: 'Advanced', value: 'advanced', icon: 'alert-circle', iconFamily: 'material' },
+  { label: 'Too Ripe', value: 'too ripe', icon: 'warning-sharp', iconFamily: 'ionicons' },
 ];
 
 export const DEFAULT_SHOPS: Shop[] = [

@@ -3,14 +3,15 @@
 // and delegates object creation to the helper layer.
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert, Switch } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ChipSelector } from './ChipSelector';
 import { EstimateDatePicker } from './EstimateDatePicker';
 import { QuantityControl } from './QuantityControl';
 import { CATEGORIES, CONFECTIONS, LOCATIONS, RIPENESS_LEVELS } from '../constants/options';
 import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit } from '../types';
 import { styles } from '../theme/styles';
-import { buildIngredientFromDraft } from '../utils/helpers';
+import { buildIngredientFromDraft, isFreshConfection } from '../utils/helpers';
 import { BarcodeScanSuggestion } from '../services/openFoodFacts';
 
 interface IngredientFormProps {
@@ -72,7 +73,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       createdAt: initialData?.createdAt ?? new Date().toISOString(),
       quantity,
       unit,
-      ripeness,
+      ripeness: isFreshConfection(confection) ? ripeness : null,
       isOpen,
       isFrozen,
       barcode,
@@ -105,13 +106,13 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.label}>Name *</Text>
+      <Text style={styles.label}>Name (e.g. Lettuce)</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" />
 
-      <Text style={styles.label}>Brand</Text>
+      <Text style={styles.label}>Brand (e.g. Esselunga, Conad)</Text>
       <TextInput style={styles.input} value={brand} onChangeText={setBrand} placeholder="Optional brand" />
 
-      <Text style={styles.label}>Barcode</Text>
+      <Text style={styles.label}>Barcode (numeric)</Text>
       <TextInput style={styles.input} value={barcode} onChangeText={setBarcode} placeholder="Optional barcode" />
 
       <Text style={styles.label}>Category</Text>
@@ -123,19 +124,50 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <Text style={styles.label}>Confection</Text>
       <ChipSelector options={CONFECTIONS} selectedValue={confection} onSelect={(value) => setConfection(value as ConfectionType | null)} />
 
-      <Text style={styles.label}>Ripeness</Text>
-      <ChipSelector options={RIPENESS_LEVELS} selectedValue={ripeness} onSelect={(value) => setRipeness(value as RipenessStatus | null)} />
+      {/* Ripeness clarification */}
+      <Text style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginBottom: 8 }}>
+        Fresh items have a Ripeness Status
+      </Text>
+
+      {/* RIPENESS shownonly if the category is 'Fresh' --> conditional rendering*/}
+      {isFreshConfection(confection)?(
+        <>
+          <Text style={styles.label}>Ripeness</Text>
+          <ChipSelector options={RIPENESS_LEVELS} selectedValue={ripeness} onSelect={(value) => setRipeness(value as RipenessStatus | null)} />
+        </>
+      ):null}
 
       <EstimateDatePicker value={expiration} onChange={setExpiration} />
       <QuantityControl value={quantity} unit={unit} onChangeQuantity={setQuantity} onChangeUnit={setUnit} />
 
-      <View style={styles.queryButtonRow}>
-        <TouchableOpacity style={[styles.chip, isOpen && styles.chipSelected]} onPress={() => setIsOpen((current) => !current)}>
-          <Text style={isOpen ? styles.chipTextSelected : styles.chipText}>Open</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.chip, isFrozen && styles.chipSelected]} onPress={() => setIsFrozen((current) => !current)}>
-          <Text style={isFrozen ? styles.chipTextSelected : styles.chipText}>Frozen</Text>
-        </TouchableOpacity>
+      <View style={{ marginVertical: 12, gap: 16 }}>
+        {/* Switch per OPEN */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
+            <MaterialCommunityIcons name="food-variant" size={24} color="#334155" />
+            <View>
+              <Text style={styles.label}>Is Open?</Text>
+              <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                Open ingredients are automatically included in "expiring soon".
+              </Text>
+            </View>
+          </View>
+          <Switch value={isOpen} onValueChange={setIsOpen} />
+        </View>
+
+        {/* Switch per FROZEN */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
+            <MaterialCommunityIcons name="snowflake" size={24} color="#334155" />
+            <View>
+              <Text style={styles.label}>Is Frozen?</Text>
+              <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                Frozen fresh ingredients are moved to freezer and can last up to 6 months.
+              </Text>
+            </View>
+          </View>
+          <Switch value={isFrozen} onValueChange={setIsFrozen} />
+        </View>
       </View>
 
       <TouchableOpacity style={[styles.mainButton, { backgroundColor: buttonColor }]} onPress={handlePress}>
