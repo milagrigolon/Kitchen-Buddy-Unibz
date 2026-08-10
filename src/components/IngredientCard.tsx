@@ -18,16 +18,16 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({ ingredient, onPr
       <Text style={styles.cardTitle}>{ingredient.name}</Text>
       {onDelete ? (
         <TouchableOpacity onPress={() => onDelete(ingredient.id)}>
-          <Text style={{ color: '#ef4444', fontWeight: '700' }}>Delete</Text>
+          <Text style={styles.ingredientDeleteText}>Delete</Text>
         </TouchableOpacity>
       ) : null}
     </View>
     <Text style={styles.cardLoc}>{ingredient.category ?? 'No category'} | {ingredient.location ?? 'No location'}</Text>
     <Text style={styles.cardExp}>Expires: {ingredient.expirationDate ?? 'Not set'}</Text>
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
-      {ingredient.isFrozen ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>FROZEN</Text> : null}
-      {ingredient.isOpen ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>OPEN</Text> : null}
-      {ingredient.ripeness ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>{ingredient.ripeness.toUpperCase()}</Text> : null}
+    <View style={styles.ingredientStatusRow}>
+      {ingredient.isFrozen ? <Text style={styles.ingredientStatusTag}>FROZEN</Text> : null}
+      {ingredient.isOpen ? <Text style={styles.ingredientStatusTag}>OPEN</Text> : null}
+      {ingredient.ripeness ? <Text style={styles.ingredientStatusTag}>{ingredient.ripeness.toUpperCase()}</Text> : null}
     </View>
   </TouchableOpacity>
 );

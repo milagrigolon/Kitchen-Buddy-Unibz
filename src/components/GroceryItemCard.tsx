@@ -19,31 +19,19 @@ export const GroceryItemCard: React.FC<GroceryItemCardProps> = ({ item, onBuy, o
     </View>
     <Text style={styles.cardLoc}>Qty: {item.quantity ?? 1} {item.unit ?? 'pcs'}</Text>
 
-    <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+    <View style={styles.groceryCardActionsRow}>
       <TouchableOpacity
-        style={{
-          flex: 1,
-          backgroundColor: COLORS.primary,
-          borderRadius: 12,
-          paddingVertical: 10,
-          alignItems: 'center',
-        }}
+        style={styles.groceryBuyButton}
         onPress={() => onBuy(item.id)}
       >
-        <Text style={{ color: '#ffffff', fontWeight: '700' }}>Bought</Text>
+        <Text style={styles.groceryBuyText}>Bought</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={{
-          flex: 1,
-          backgroundColor: '#ef4444',
-          borderRadius: 12,
-          paddingVertical: 10,
-          alignItems: 'center',
-        }}
+        style={styles.groceryRemoveButton}
         onPress={() => onDelete(item.id)}
       >
-        <Text style={{ color: '#ffffff', fontWeight: '700' }}>Remove</Text>
+        <Text style={styles.groceryRemoveText}>Remove</Text>
       </TouchableOpacity>
     </View>
   </View>

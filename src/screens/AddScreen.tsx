@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal';
 import { Header } from '../components/Header';
 import { IngredientForm } from '../components/IngredientForm';
@@ -10,8 +11,8 @@ import { Ingredient } from '../types';
 import { fetchProductByBarcode } from '../services/openFoodFacts';
 
 /**
- * AddScreen provides the entry form for adding a new ingredient.
- * It also includes the barcode action placeholder required by the pair project scope.
+ * AddScreen provides the entry form for adding a new ingredient,
+ * with the barcode scan button placed prominently under the header.
  */
 export const AddScreen: React.FC = () => {
   const { addIngredient } = useIngredients();
@@ -48,40 +49,23 @@ export const AddScreen: React.FC = () => {
     return (
       <View style={styles.flex1}>
         <Header />
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 28 }}>
-          <View
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 48,
-              backgroundColor: COLORS.primaryLight,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 20,
-            }}
-          >
+        <View style={styles.addScreenSuccessContainer}>
+          <View style={styles.addScreenSuccessIcon}>
             <MaterialCommunityIcons name="check" size={52} color={COLORS.primary} />
           </View>
 
-          <Text style={{ fontSize: 26, fontWeight: '700', color: COLORS.textDark, marginBottom: 8 }}>
+          <Text style={styles.addScreenSuccessTitle}>
             Ingredient added
           </Text>
-          <Text style={{ fontSize: 15, color: COLORS.textMuted, textAlign: 'center', marginBottom: 24 }}>
+          <Text style={styles.addScreenSuccessDescription}>
             Your ingredient has been added successfully.
           </Text>
 
           <TouchableOpacity
-            style={{
-              backgroundColor: COLORS.primary,
-              borderRadius: 18,
-              paddingVertical: 14,
-              paddingHorizontal: 28,
-              width: '100%',
-              alignItems: 'center',
-            }}
+            style={styles.addScreenContinueButton}
             onPress={() => setShowSuccess(false)}
           >
-            <Text style={{ color: COLORS.white, fontWeight: '700', fontSize: 16 }}>Continue</Text>
+            <Text style={styles.addScreenContinueButtonText}>Continue</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -92,12 +76,22 @@ export const AddScreen: React.FC = () => {
     <View style={styles.flex1}>
       <Header />
       <Text style={styles.sectionTitle}>Add ingredient</Text>
-      <IngredientForm onSave={handleSave} isEdit={false} prefillData={prefillData} />
-      <View style={styles.formPadding}>
-        <TouchableOpacity style={styles.mainButton} onPress={handleScanBarcode}>
-          <Text style={styles.buttonText}>Scan barcode</Text>
+
+      {/* SCAN BARCODE BUTTON - Orange Styled */}
+      <View style={styles.addScreenScanBarcodeWrapper}>
+        <TouchableOpacity
+          style={styles.addScreenScanBarcodeButton}
+          onPress={handleScanBarcode}
+        >
+          <Ionicons name="barcode-outline" size={22} color="#ffffff" />
+          <Text style={styles.addScreenScanBarcodeText}>
+            Scan Barcode
+          </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Form component underneath */}
+      <IngredientForm onSave={handleSave} isEdit={false} prefillData={prefillData} />
 
       <BarcodeScannerModal
         visible={isScannerVisible}

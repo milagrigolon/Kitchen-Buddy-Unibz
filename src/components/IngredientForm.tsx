@@ -110,17 +110,17 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   return (
     <ScrollView
       style={styles.formPadding}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={styles.formScrollContent}
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.label}>Name* (e.g. Lettuce)</Text>
-      <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" />
+      <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" placeholderTextColor={COLORS.placeholder} />
 
       <Text style={styles.label}>Brand (e.g. Esselunga, Conad)</Text>
-      <TextInput style={styles.input} value={brand} onChangeText={setBrand} placeholder="Optional brand" />
+      <TextInput style={styles.input} value={brand} onChangeText={setBrand} placeholder="Optional brand" placeholderTextColor={COLORS.placeholder} />
 
       <Text style={styles.label}>Barcode (numeric)</Text>
-      <TextInput style={styles.input} value={barcode} onChangeText={setBarcode} placeholder="Optional barcode" />
+      <TextInput style={styles.input} value={barcode} onChangeText={setBarcode} placeholder="Optional barcode" placeholderTextColor={COLORS.placeholder} />
 
       <Text style={styles.label}>Category</Text>
       <ChipSelector options={CATEGORIES} selectedValue={category} onSelect={(value) => setCategory(value as Category | null)} />
@@ -132,7 +132,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <ChipSelector options={CONFECTIONS} selectedValue={confection} onSelect={(value) => setConfection(value as ConfectionType | null)} />
 
       {/* Ripeness clarification */}
-      <Text style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginBottom: 8 }}>
+      <Text style={styles.formHelperText}>
         Fresh items have a Ripeness Status
       </Text>
 
@@ -140,45 +140,23 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       {isFreshConfection(confection) ? (
         <>
           <Text style={styles.label}>Ripeness</Text>
-          <View style={{ marginTop: 8, marginBottom: 12 }}>
-            <View style={{ position: 'relative', paddingVertical: 8 }}>
-              <View
-                style={{
-                  height: 8,
-                  borderRadius: 999,
-                  backgroundColor: '#e2e8f0',
-                  overflow: 'hidden',
-                }}
-              />
+          <View style={styles.ripenessSection}>
+            <View style={styles.ripenessTrackFrame}>
+              <View style={styles.ripenessTrack} />
+
+              <View pointerEvents="none" style={styles.ripenessTrackOverlay} />
 
               <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: 8,
-                  height: 8,
-                  borderRadius: 999,
-                  backgroundColor: 'transparent',
-                  borderWidth: 0,
-                }}
+                style={[
+                  styles.ripenessFill,
+                  {
+                    width: `${((selectedRipenessIndex + 1) / RIPENESS_LEVELS.length) * 100}%`,
+                    backgroundColor: selectedRipenessIndex === RIPENESS_LEVELS.length - 1 ? '#dc2626' : getRipenessColor(selectedRipenessIndex),
+                  },
+                ]}
               />
 
-              <View
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 8,
-                  height: 8,
-                  width: `${((selectedRipenessIndex + 1) / RIPENESS_LEVELS.length) * 100}%`,
-                  borderRadius: 999,
-                  backgroundColor: selectedRipenessIndex === RIPENESS_LEVELS.length - 1 ? '#dc2626' : getRipenessColor(selectedRipenessIndex),
-                  opacity: 1,
-                }}
-              />
-
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+              <View style={styles.ripenessOptionsRow}>
                 {RIPENESS_LEVELS.map((option, index) => {
                   const selected = ripeness === option.value;
                   const color = getRipenessColor(index);
@@ -189,30 +167,29 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
                       key={option.value}
                       activeOpacity={0.8}
                       onPress={() => setRipeness(option.value)}
-                      style={{ flex: 1, alignItems: 'center' }}
+                      style={styles.ripenessOption}
                     >
                       <View
-                        style={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: 999,
-                          backgroundColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#f8fafc',
-                          borderWidth: 2,
-                          borderColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#cbd5e1',
-                          marginBottom: 8,
-                          shadowColor: selected ? (isFinalAlert ? '#dc2626' : color) : 'transparent',
-                          shadowOpacity: selected ? 0.45 : 0,
-                          shadowRadius: selected ? 7 : 0,
-                          shadowOffset: { width: 0, height: 2 },
-                        }}
+                        style={[
+                          styles.ripenessDot,
+                          {
+                            backgroundColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#f8fafc',
+                            borderColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#cbd5e1',
+                            shadowColor: selected ? (isFinalAlert ? '#dc2626' : color) : 'transparent',
+                            shadowOpacity: selected ? 0.45 : 0,
+                            shadowRadius: selected ? 7 : 0,
+                            shadowOffset: { width: 0, height: 2 },
+                          },
+                        ]}
                       />
                       <Text
-                        style={{
-                          fontSize: 10,
-                          color: selected ? '#0f172a' : '#64748b',
-                          fontWeight: selected ? '700' : '500',
-                          textAlign: 'center',
-                        }}
+                        style={[
+                          styles.ripenessDotText,
+                          {
+                            color: selected ? '#0f172a' : '#64748b',
+                            fontWeight: selected ? '700' : '500',
+                          },
+                        ]}
                       >
                         {option.label}
                       </Text>
@@ -235,14 +212,14 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         onChangeConsumed={setConsumedPercentage}
       />
 
-      <View style={{ marginVertical: 12, gap: 16 }}>
+      <View style={styles.formSwitchGroup}>
         {/* Switch for OPEN */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
+        <View style={styles.formSwitchRow}>
+          <View style={styles.formSwitchContent}>
             <MaterialCommunityIcons name="food-variant" size={24} color="#334155" />
             <View>
               <Text style={styles.label}>Open Item</Text>
-              <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+              <Text style={styles.formSwitchDescription}>
                 Open ingredients are automatically included in "expiring soon".
               </Text>
             </View>
@@ -251,12 +228,12 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         </View>
 
         {/* Switch for FROZEN */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
+        <View style={styles.formSwitchRow}>
+          <View style={styles.formSwitchContent}>
             <MaterialCommunityIcons name="snowflake" size={24} color="#334155" />
             <View>
               <Text style={styles.label}>Frozen Item</Text>
-              <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+              <Text style={styles.formSwitchDescription}>
                 Frozen fresh ingredients are moved to freezer and can last up to 6 months.
               </Text>
             </View>
