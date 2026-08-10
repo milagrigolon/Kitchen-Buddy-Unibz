@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { COLORS } from '../theme/styles';
 
 interface BarcodeScannerModalProps {
   visible: boolean;
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2563eb',
+    backgroundColor: COLORS.primary,
   },
   title: {
     color: '#ffffff',
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   closeButtonText: {
-    color: '#2563eb',
+    color: COLORS.primary,
     fontWeight: '700',
   },
   permissionContainer: {

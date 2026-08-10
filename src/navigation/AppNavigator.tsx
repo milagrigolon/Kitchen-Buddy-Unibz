@@ -10,7 +10,7 @@ import { MyItemsScreen } from '../screens/MyItemsScreen';
 import { GroceryScreen } from '../screens/GroceryScreen';
 import { EditScreen } from '../screens/EditScreen';
 import { useAppStatus, useNearbyShop } from '../context/AppContext';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 import { Ingredient } from '../types';
 
 type ExpiringStackParamList = {
@@ -60,7 +60,7 @@ export const AppNavigator: React.FC = () => {
   if (status === 'booting') {
     return (
       <View style={[styles.flex1, { justifyContent: 'center', alignItems: 'center' }]}> 
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }

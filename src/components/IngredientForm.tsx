@@ -10,7 +10,7 @@ import { EstimateDatePicker } from './EstimateDatePicker';
 import { QuantityControl } from './QuantityControl';
 import { CATEGORIES, CONFECTIONS, LOCATIONS, RIPENESS_LEVELS } from '../constants/options';
 import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit } from '../types';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 import { buildIngredientFromDraft, isFreshConfection } from '../utils/helpers';
 import { BarcodeScanSuggestion } from '../services/openFoodFacts';
 
@@ -102,7 +102,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
     }
   };
 
-  const buttonColor = isEdit ? '#1e40af' : '#2563eb';
+  const buttonColor = isEdit ? COLORS.primaryDark : COLORS.primary;
 
   return (
     <ScrollView

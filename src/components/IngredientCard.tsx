@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ingredient } from '../types';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 
 interface IngredientCardProps {
   ingredient: Ingredient;
@@ -25,9 +25,9 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({ ingredient, onPr
     <Text style={styles.cardLoc}>{ingredient.category ?? 'No category'} | {ingredient.location ?? 'No location'}</Text>
     <Text style={styles.cardExp}>Expires: {ingredient.expirationDate ?? 'Not set'}</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
-      {ingredient.isFrozen ? <Text style={{ backgroundColor: '#dbeafe', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>FROZEN</Text> : null}
-      {ingredient.isOpen ? <Text style={{ backgroundColor: '#dbeafe', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>OPEN</Text> : null}
-      {ingredient.ripeness ? <Text style={{ backgroundColor: '#dbeafe', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>{ingredient.ripeness.toUpperCase()}</Text> : null}
+      {ingredient.isFrozen ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>FROZEN</Text> : null}
+      {ingredient.isOpen ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>OPEN</Text> : null}
+      {ingredient.ripeness ? <Text style={{ backgroundColor: COLORS.primaryLight, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6 }}>{ingredient.ripeness.toUpperCase()}</Text> : null}
     </View>
   </TouchableOpacity>
 );

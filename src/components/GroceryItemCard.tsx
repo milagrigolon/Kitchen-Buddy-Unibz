@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { GroceryItem } from '../types';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 
 interface GroceryItemCardProps {
   item: GroceryItem;
@@ -23,7 +23,7 @@ export const GroceryItemCard: React.FC<GroceryItemCardProps> = ({ item, onBuy, o
       <TouchableOpacity
         style={{
           flex: 1,
-          backgroundColor: '#2563eb',
+          backgroundColor: COLORS.primary,
           borderRadius: 12,
           paddingVertical: 10,
           alignItems: 'center',

@@ -4,7 +4,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 
 interface Option {
     label: string;
@@ -30,7 +30,7 @@ export const ChipSelector: React.FC<ChipSelectorProps> = ({
     const renderIcon = (option: Option, isSelected: boolean) => {
         if (!option.icon) return null;
 
-        const color = isSelected ? '#ffffff' : '#2563eb';
+        const color = isSelected ? '#ffffff' : COLORS.primary;
         const size = 16;
         const style = { marginRight: 6 };
 

@@ -10,9 +10,9 @@ const FONT_FAMILY = Platform.select({
 });
 
 export const COLORS = {
-    primary: '#2563eb',
-    primaryDark: '#1e40af',
-    primaryLight: '#dbeafe',
+    primary: '#f97316',
+    primaryDark: '#c2410c',
+    primaryLight: '#ffedd5',
     secondary: '#94a3b8',
     danger: '#ef4444',
     warning: '#f59e0b',
