@@ -103,6 +103,9 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   };
 
   const buttonColor = isEdit ? COLORS.primaryDark : COLORS.primary;
+  const ripenessStops = ['#22c55e', '#a3e635', '#fbbf24', '#f97316', '#dc2626'];
+  const getRipenessColor = (index: number) => ripenessStops[Math.min(Math.max(index, 0), ripenessStops.length - 1)];
+  const selectedRipenessIndex = ripeness ? RIPENESS_LEVELS.findIndex((option) => option.value === ripeness) : 0;
 
   return (
     <ScrollView
@@ -134,12 +137,93 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       </Text>
 
       {/* RIPENESS shown only if the category is 'Fresh' --> conditional rendering*/}
-      {isFreshConfection(confection)?(
+      {isFreshConfection(confection) ? (
         <>
           <Text style={styles.label}>Ripeness</Text>
-          <ChipSelector options={RIPENESS_LEVELS} selectedValue={ripeness} onSelect={(value) => setRipeness(value as RipenessStatus | null)} />
+          <View style={{ marginTop: 8, marginBottom: 12 }}>
+            <View style={{ position: 'relative', paddingVertical: 8 }}>
+              <View
+                style={{
+                  height: 8,
+                  borderRadius: 999,
+                  backgroundColor: '#e2e8f0',
+                  overflow: 'hidden',
+                }}
+              />
+
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: 8,
+                  height: 8,
+                  borderRadius: 999,
+                  backgroundColor: 'transparent',
+                  borderWidth: 0,
+                }}
+              />
+
+              <View
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 8,
+                  height: 8,
+                  width: `${((selectedRipenessIndex + 1) / RIPENESS_LEVELS.length) * 100}%`,
+                  borderRadius: 999,
+                  backgroundColor: selectedRipenessIndex === RIPENESS_LEVELS.length - 1 ? '#dc2626' : getRipenessColor(selectedRipenessIndex),
+                  opacity: 1,
+                }}
+              />
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                {RIPENESS_LEVELS.map((option, index) => {
+                  const selected = ripeness === option.value;
+                  const color = getRipenessColor(index);
+                  const isFinalAlert = option.value === 'too ripe';
+
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      activeOpacity={0.8}
+                      onPress={() => setRipeness(option.value)}
+                      style={{ flex: 1, alignItems: 'center' }}
+                    >
+                      <View
+                        style={{
+                          width: 14,
+                          height: 14,
+                          borderRadius: 999,
+                          backgroundColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#f8fafc',
+                          borderWidth: 2,
+                          borderColor: selected ? (isFinalAlert ? '#dc2626' : color) : '#cbd5e1',
+                          marginBottom: 8,
+                          shadowColor: selected ? (isFinalAlert ? '#dc2626' : color) : 'transparent',
+                          shadowOpacity: selected ? 0.45 : 0,
+                          shadowRadius: selected ? 7 : 0,
+                          shadowOffset: { width: 0, height: 2 },
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: selected ? '#0f172a' : '#64748b',
+                          fontWeight: selected ? '700' : '500',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
         </>
-      ):null}
+      ) : null}
 
       <EstimateDatePicker value={expiration} onChange={setExpiration} />
       <QuantityControl
