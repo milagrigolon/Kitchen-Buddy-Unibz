@@ -71,6 +71,7 @@ export interface IngredientDraftInput {
   createdAt: string;
   quantity?: number;
   unit?: Unit;
+  consumedPercentage?: number; // ADDED: Optional consumed percentage field
   ripeness?: RipenessStatus | null;
   isOpen?: boolean;
   isFrozen?: boolean;
@@ -89,6 +90,7 @@ export const buildIngredientFromDraft = ({
   createdAt,
   quantity,
   unit,
+  consumedPercentage = 0, // ADDED: destructured with a fallback default of 0
   ripeness,
   isOpen,
   isFrozen,
@@ -109,6 +111,7 @@ export const buildIngredientFromDraft = ({
     createdAt,
     quantity,
     unit,
+    consumedPercentage, // ADDED: passed to the returned Ingredient object
     ripeness,
     isOpen,
     isFrozen,
@@ -117,7 +120,6 @@ export const buildIngredientFromDraft = ({
     imageUrl,
   };
 };
-
 /**
  * Convert a timestamp into the number of days remaining until expiration.
  *
@@ -205,4 +207,12 @@ export const filterIngredients = (
  */
 export const isFreshConfection = (confection: ConfectionType | null | undefined): boolean => {
   return confection === 'fresh';
+};
+
+/**
+ * Returns the step size for quantity operations based on unit.
+ * 0.25 for 'kg' or 'l', 1 for 'pcs'.
+ */
+export const getQuantityStep = (unit: Unit): number => {
+  return unit === 'kg' || unit === 'l' ? 0.25 : 1;
 };

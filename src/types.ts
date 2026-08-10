@@ -6,7 +6,7 @@ export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liqu
 export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
-export type Unit = 'pcs' | 'kg' | 'bottle' | 'pack' | 'box';
+export type Unit = 'pcs' | 'kg' | 'l';
 export type ShopType = 'general' | 'butcher';
 
 export type Ingredient = {
@@ -25,6 +25,7 @@ export type Ingredient = {
   isFrozen?: boolean;
   quantity?: number;
   unit?: Unit;
+  consumedPercentage?: number;
   barcode?: string | null;
   brand?: string | null;
   imageUrl?: string | null;

@@ -38,13 +38,15 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   const [location, setLocation] = useState<Location | null>(initialData?.location ?? null);
   const [confection, setConfection] = useState<ConfectionType | null>(initialData?.confectionType ?? null);
   const [expiration, setExpiration] = useState<string>(initialData?.expirationDate ?? '');
-  const [quantity, setQuantity] = useState<number>(initialData?.quantity ?? 1);
+  const [quantity, setQuantity] = useState<number>(initialData?.quantity ?? 0);
   const [unit, setUnit] = useState<Unit>(initialData?.unit ?? 'pcs');
   const [ripeness, setRipeness] = useState<RipenessStatus | null>(initialData?.ripeness ?? null);
   const [isOpen, setIsOpen] = useState<boolean>(initialData?.isOpen ?? false);
   const [isFrozen, setIsFrozen] = useState<boolean>(initialData?.isFrozen ?? false);
   const [brand, setBrand] = useState<string>(initialData?.brand ?? '');
   const [barcode, setBarcode] = useState<string>(initialData?.barcode ?? '');
+  // Track consumed percentage state
+  const [consumedPercentage, setConsumedPercentage] = useState<number>(initialData?.consumedPercentage ?? 0);
 
   useEffect(() => {
     if (!prefillData) {
@@ -73,6 +75,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       createdAt: initialData?.createdAt ?? new Date().toISOString(),
       quantity,
       unit,
+      consumedPercentage, // <-- AGGIUNGI QUESTA RIGA
       ripeness: isFreshConfection(confection) ? ripeness : null,
       isOpen,
       isFrozen,
@@ -90,6 +93,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       setExpiration('');
       setQuantity(1);
       setUnit('pcs');
+      setConsumedPercentage(0); // <-- AGGIUNGI QUESTA RIGA PER RESETTARE LO STATO
       setRipeness(null);
       setIsOpen(false);
       setIsFrozen(false);
@@ -106,7 +110,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.label}>Name (e.g. Lettuce)</Text>
+      <Text style={styles.label}>Name* (e.g. Lettuce)</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" />
 
       <Text style={styles.label}>Brand (e.g. Esselunga, Conad)</Text>
@@ -129,7 +133,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         Fresh items have a Ripeness Status
       </Text>
 
-      {/* RIPENESS shownonly if the category is 'Fresh' --> conditional rendering*/}
+      {/* RIPENESS shown only if the category is 'Fresh' --> conditional rendering*/}
       {isFreshConfection(confection)?(
         <>
           <Text style={styles.label}>Ripeness</Text>
@@ -138,15 +142,22 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       ):null}
 
       <EstimateDatePicker value={expiration} onChange={setExpiration} />
-      <QuantityControl value={quantity} unit={unit} onChangeQuantity={setQuantity} onChangeUnit={setUnit} />
+      <QuantityControl
+        value={quantity}
+        unit={unit}
+        consumedPercentage={consumedPercentage}
+        onChangeQuantity={setQuantity}
+        onChangeUnit={setUnit}
+        onChangeConsumed={setConsumedPercentage}
+      />
 
       <View style={{ marginVertical: 12, gap: 16 }}>
-        {/* Switch per OPEN */}
+        {/* Switch for OPEN */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
             <MaterialCommunityIcons name="food-variant" size={24} color="#334155" />
             <View>
-              <Text style={styles.label}>Is Open?</Text>
+              <Text style={styles.label}>Open Item</Text>
               <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
                 Open ingredients are automatically included in "expiring soon".
               </Text>
@@ -155,12 +166,12 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
           <Switch value={isOpen} onValueChange={setIsOpen} />
         </View>
 
-        {/* Switch per FROZEN */}
+        {/* Switch for FROZEN */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, paddingRight: 8 }}>
             <MaterialCommunityIcons name="snowflake" size={24} color="#334155" />
             <View>
-              <Text style={styles.label}>Is Frozen?</Text>
+              <Text style={styles.label}>Frozen Item</Text>
               <Text style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
                 Frozen fresh ingredients are moved to freezer and can last up to 6 months.
               </Text>
