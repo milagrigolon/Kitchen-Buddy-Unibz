@@ -25,6 +25,8 @@ export const COLORS = {
     placeholder: '#94a3b8',
 };
 
+export const SCREEN_BOTTOM_SPACING = 40;
+
 export const styles = StyleSheet.create({
     flex1: {
         flex: 1,
@@ -49,7 +51,7 @@ export const styles = StyleSheet.create({
         padding: 20,
     },
     formScrollContent: {
-        paddingBottom: 40,
+        paddingBottom: SCREEN_BOTTOM_SPACING,
     },
     label: {
         fontWeight: 'bold',
@@ -164,6 +166,7 @@ export const styles = StyleSheet.create({
     listContainer: {
         flex: 1,
         padding: 15,
+        paddingBottom: SCREEN_BOTTOM_SPACING,
     },
     controlContainer: {
         backgroundColor: COLORS.white,

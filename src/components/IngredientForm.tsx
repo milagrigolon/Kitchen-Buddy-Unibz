@@ -109,9 +109,10 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
 
   return (
     <ScrollView
-      style={styles.formPadding}
+      style={[styles.formPadding, { flex: 1 }]}
       contentContainerStyle={styles.formScrollContent}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
       <Text style={styles.label}>Name* (e.g. Lettuce)</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" placeholderTextColor={COLORS.placeholder} />

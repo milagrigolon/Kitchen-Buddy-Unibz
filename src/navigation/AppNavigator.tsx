@@ -71,15 +71,33 @@ export const AppNavigator: React.FC = () => {
         initialRouteName={nearbyShop ? 'Groceries' : 'Add'}
         screenOptions={({ route }) => ({
           headerShown: false,
+          tabBarHideOnKeyboard: true,
           tabBarActiveTintColor: COLORS.primary,
           tabBarInactiveTintColor: '#94a3b8',
           tabBarStyle: {
+            height: 76,
             backgroundColor: '#ffffff',
-            borderTopColor: COLORS.primaryLight,
-            borderTopWidth: 1,
+            borderTopWidth: 0,
+            borderRadius: 26,
+            marginHorizontal: 14,
+            marginBottom: 10,
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.10,
+            shadowRadius: 14,
+            elevation: 8,
+            paddingTop: 8,
+            paddingBottom: 10,
+          },
+          tabBarItemStyle: {
+            borderRadius: 18,
+            marginHorizontal: 4,
+            height: 54,
           },
           tabBarLabelStyle: {
             fontWeight: '600',
+            fontSize: 11,
+            marginTop: 2,
           },
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap = 'add-circle-outline';

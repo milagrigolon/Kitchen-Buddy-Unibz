@@ -38,7 +38,7 @@ export const GroceryScreen: React.FC = () => {
       {/* 2. Sostituito il View con ScrollView */}
       <ScrollView 
         style={styles.flex1} 
-        contentContainerStyle={[styles.listContainer, { paddingBottom: 60 }]}
+        contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.sectionTitle}>Grocery list</Text>

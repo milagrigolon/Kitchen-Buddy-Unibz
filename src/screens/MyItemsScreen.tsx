@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ChipSelector } from '../components/ChipSelector';
 import { Header } from '../components/Header';
@@ -50,7 +50,11 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.flex1}>
       <Header />
-      <View style={styles.listContainer}>
+      <ScrollView
+        style={styles.flex1}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.sectionTitle}>My items</Text>
         <TextInput
           style={styles.input}
@@ -100,7 +104,7 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
         <ChipSelector options={CONFECTIONS} selectedValue={selectedConfection} onSelect={(value) => setSelectedConfection(value as ConfectionType | null)} />
 
         <IngredientList ingredients={filteredIngredients} onPress={handlePress} />
-      </View>
+      </ScrollView>
     </View>
   );
 };
