@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native'; // 1. Aggiunto ScrollView
 import { GroceryItemCard } from '../components/GroceryItemCard';
 import { Header } from '../components/Header';
 import { ShopLocationBanner } from '../components/ShopLocationBanner';
@@ -35,7 +35,12 @@ export const GroceryScreen: React.FC = () => {
   return (
     <View style={styles.flex1}>
       <Header />
-      <View style={styles.listContainer}>
+      {/* 2. Sostituito il View con ScrollView */}
+      <ScrollView 
+        style={styles.flex1} 
+        contentContainerStyle={[styles.listContainer, { paddingBottom: 60 }]}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.sectionTitle}>Grocery list</Text>
         <ShopLocationBanner nearbyShop={nearbyShop} />
 
@@ -70,7 +75,7 @@ export const GroceryScreen: React.FC = () => {
             <GroceryItemCard key={item.id} item={item} onBuy={handleBuy} onDelete={deleteGrocery} />
           ))
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 };
