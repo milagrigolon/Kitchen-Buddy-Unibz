@@ -31,7 +31,6 @@ export const IngredientList: React.FC<IngredientListProps> = ({ ingredients, onP
           key={ingredient.id}
           ingredient={ingredient}
           onPress={onPress}
-          onDelete={onDelete}
         />
       ))}
     </View>

@@ -3,6 +3,7 @@ import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal';
+import { SuccessMessage } from '../components/SuccessMessage';
 import { Header } from '../components/Header';
 import { IngredientForm } from '../components/IngredientForm';
 import { useIngredients } from '../context/AppContext';
@@ -49,25 +50,11 @@ export const AddScreen: React.FC = () => {
     return (
       <View style={styles.flex1}>
         <Header />
-        <View style={styles.addScreenSuccessContainer}>
-          <View style={styles.addScreenSuccessIcon}>
-            <MaterialCommunityIcons name="check" size={52} color={COLORS.primary} />
-          </View>
-
-          <Text style={styles.addScreenSuccessTitle}>
-            Ingredient added
-          </Text>
-          <Text style={styles.addScreenSuccessDescription}>
-            Your ingredient has been added successfully.
-          </Text>
-
-          <TouchableOpacity
-            style={styles.addScreenContinueButton}
-            onPress={() => setShowSuccess(false)}
-          >
-            <Text style={styles.addScreenContinueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        </View>
+        <SuccessMessage
+          title="Ingredient added"
+          description="Your ingredient has been added successfully."
+          onContinue={() => setShowSuccess(false)}
+        />
       </View>
     );
   }
@@ -75,9 +62,8 @@ export const AddScreen: React.FC = () => {
   return (
     <View style={styles.flex1}>
       <Header />
-      <Text style={styles.sectionTitle}>Add ingredient</Text>
-
-      {/* SCAN BARCODE BUTTON - Orange Styled */}
+      
+      {/* SCAN BARCODE BUTTON*/}
       <View style={styles.addScreenScanBarcodeWrapper}>
         <TouchableOpacity
           style={styles.addScreenScanBarcodeButton}

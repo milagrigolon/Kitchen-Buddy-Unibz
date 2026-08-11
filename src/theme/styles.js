@@ -9,6 +9,14 @@ const FONT_FAMILY = Platform.select({
     default: 'sans-serif',
 });
 
+const baseButton = {
+    padding: 15,
+    borderRadius: 20,
+    alignItems: 'center',
+    elevation: 2,
+    marginTop: 10,
+};
+
 export const COLORS = {
     primary: '#f97316',
     primaryDark: '#c2410c',
@@ -72,12 +80,18 @@ export const styles = StyleSheet.create({
         fontFamily: FONT_FAMILY,
     },
     mainButton: {
-        padding: 15,
-        borderRadius: 20,
-        alignItems: 'center',
-        elevation: 2,
-        marginTop: 10,
-        backgroundColor: COLORS.primary,
+        ...baseButton,
+        backgroundColor: COLORS.primary, 
+    },
+    //  Cancel 
+    cancelButton: {
+        ...baseButton,
+        backgroundColor: '#94a3b8',
+    },
+    //  Delete 
+    deleteButton: {
+        ...baseButton,
+        backgroundColor: COLORS.danger,
     },
     buttonText: {
         color: COLORS.white,
@@ -183,6 +197,24 @@ export const styles = StyleSheet.create({
         marginBottom: 8,
         textAlign: 'center',
         fontFamily: FONT_FAMILY,
+    },
+    shopContainer: {
+        backgroundColor: COLORS.primary, 
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 14,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#ffedd5', 
+        flexDirection: 'row', 
+        alignItems: 'center',
+    },
+    shopLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.white, 
+        fontFamily: FONT_FAMILY,
+        marginLeft: 8, 
     },
     buttonGroup: {
         flexDirection: 'row',
@@ -352,6 +384,27 @@ export const styles = StyleSheet.create({
         color: '#ffffff',
         fontFamily: FONT_FAMILY,
     },
+    // horiziontal container for input and button, with spacing between them
+    quickAddRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    // input that takes all the space to the left
+    quickAddInput: {
+        flex: 1,
+        marginRight: 10,
+        marginBottom: 0, 
+    },
+    // compact button styled like input
+    quickAddButton: {
+        backgroundColor: COLORS.primary, 
+        borderRadius: 12,
+        paddingHorizontal: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 48, 
+    },
     groceryCardActionsRow: {
         flexDirection: 'row',
         gap: 10,
@@ -398,11 +451,16 @@ export const styles = StyleSheet.create({
         paddingVertical: 4,
         marginRight: 6,
     },
-    formHelperText: {
-        fontSize: 12,
-        color: '#64748b',
-        marginTop: 4,
+    formHelperRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
         marginBottom: 8,
+    },
+    formHelperText: {
+        fontSize: 13,
+        color: '#64748b',
+        marginLeft: 6, // space between icon and text
         fontFamily: FONT_FAMILY,
     },
     ripenessSection: {
@@ -482,5 +540,19 @@ export const styles = StyleSheet.create({
         color: '#64748b',
         marginTop: 2,
         fontFamily: FONT_FAMILY,
+    },
+    // Aggiungi in styles.ts / styles.js:
+    missingDetailsBadge: {
+        backgroundColor: '#fffbebe', // Sfondo giallo tenue / warning
+        borderColor: COLORS.warning,
+        borderWidth: 1,
+        paddingVertical: 2,
+        paddingHorizontal: 8,
+        borderRadius: 12,
+    },
+    missingDetailsText: {
+        color: COLORS.warning, 
+        fontSize: 11,
+        fontWeight: '700',
     },
 });

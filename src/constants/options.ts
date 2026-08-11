@@ -38,8 +38,8 @@ export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
 ];
 
 export const DEFAULT_SHOPS: Shop[] = [
-  { id: 'general-market', name: 'General Market', type: 'general', latitude: 46.5038, longitude: 11.3548, radiusMeters: 150 },
-  { id: 'butcher-shop', name: 'Butcher Shop', type: 'butcher', latitude: 46.5074, longitude: 11.3552, radiusMeters: 140 },
+  { id: 'general-market', name: 'General Market', type: 'general', latitude: 45.7583860, longitude: 13.365755, radiusMeters: 150 }, // near Mila house (FOR TESTING)
+  { id: 'butcher-shop', name: 'Butcher Shop', type: 'butcher', latitude: 45.8837737, longitude: 11.0063170, radiusMeters: 140 }, // near Francesco house (FOR TESTING)
 ];
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;

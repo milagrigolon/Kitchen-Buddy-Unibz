@@ -6,7 +6,7 @@ import { Header } from '../components/Header';
 import { IngredientList } from '../components/IngredientList';
 import { useIngredients } from '../context/AppContext';
 import { CATEGORIES, CONFECTIONS, LOCATIONS } from '../constants/options';
-import { styles } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 import { Category, ConfectionType, Ingredient, Location } from '../types';
 import { filterIngredients, getMissingDataItems, getRecentlyAdded } from '../utils/helpers';
 
@@ -55,12 +55,13 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>My items</Text>
+        
         <TextInput
           style={styles.input}
           value={searchTerm}
           onChangeText={setSearchTerm}
-          placeholder="Search ingredients..."
+          placeholder="Search for ingredients"
+          placeholderTextColor={COLORS.placeholder}
         />
 
         <View style={styles.queryButtonRow}>
@@ -74,7 +75,8 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
               setSelectedConfection(null);
             }}
           >
-            <Text style={styles.clearButtonText}>Clear</Text>
+            
+          <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
 
           {[
@@ -102,6 +104,8 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
 
         <Text style={styles.label}>Filter by confection</Text>
         <ChipSelector options={CONFECTIONS} selectedValue={selectedConfection} onSelect={(value) => setSelectedConfection(value as ConfectionType | null)} />
+
+        <Text style={styles.label}>My items</Text>
 
         <IngredientList ingredients={filteredIngredients} onPress={handlePress} />
       </ScrollView>

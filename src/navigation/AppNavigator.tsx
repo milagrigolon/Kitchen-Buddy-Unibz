@@ -109,7 +109,7 @@ export const AppNavigator: React.FC = () => {
             } else if (route.name === 'My Items') {
               iconName = focused ? 'list' : 'list-outline';
             } else if (route.name === 'Groceries') {
-              iconName = focused ? 'basket' : 'basket-outline';
+              iconName = focused ? 'cart' : 'cart-outline';
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;

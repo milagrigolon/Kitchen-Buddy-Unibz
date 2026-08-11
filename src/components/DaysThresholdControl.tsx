@@ -14,7 +14,7 @@ const DAY_OPTIONS = [3, 5, 7, 10, 14];
  */
 export const DaysThresholdControl: React.FC<DaysThresholdControlProps> = ({ value, onChange }) => (
   <View style={styles.controlContainer}>
-    <Text style={styles.controlLabel}>Show ingredients expiring within</Text>
+    <Text style={styles.controlLabel}>Ingredients expiring within</Text>
     <View style={styles.buttonGroup}>
       {DAY_OPTIONS.map((option) => (
         <TouchableOpacity

@@ -20,6 +20,7 @@ interface IngredientFormProps {
   isEdit: boolean;
   onCancel?: () => void;
   prefillData?: BarcodeScanSuggestion | null;
+  onDelete?: () => void;
 }
 
 /**
@@ -32,20 +33,25 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   isEdit,
   onCancel,
   prefillData,
+  onDelete,
 }) => {
   const [name, setName] = useState<string>(initialData?.name ?? '');
   const [category, setCategory] = useState<Category | null>(initialData?.category ?? null);
   const [location, setLocation] = useState<Location | null>(initialData?.location ?? null);
   const [confection, setConfection] = useState<ConfectionType | null>(initialData?.confectionType ?? null);
   const [expiration, setExpiration] = useState<string>(initialData?.expirationDate ?? '');
+  // default quantity value is 0
   const [quantity, setQuantity] = useState<number>(initialData?.quantity ?? 0);
+  // default unit is pcs
   const [unit, setUnit] = useState<Unit>(initialData?.unit ?? 'pcs');
-  const [ripeness, setRipeness] = useState<RipenessStatus | null>(initialData?.ripeness ?? null);
+  // default ripeness value is 'green'
+  const [ripeness, setRipeness] = useState<RipenessStatus | null>(initialData?.ripeness ?? "green");
+  // switches for open and frozen turned off by default
   const [isOpen, setIsOpen] = useState<boolean>(initialData?.isOpen ?? false);
   const [isFrozen, setIsFrozen] = useState<boolean>(initialData?.isFrozen ?? false);
   const [brand, setBrand] = useState<string>(initialData?.brand ?? '');
   const [barcode, setBarcode] = useState<string>(initialData?.barcode ?? '');
-  // Track consumed percentage state
+  // track consumed percentage state, starts at 0
   const [consumedPercentage, setConsumedPercentage] = useState<number>(initialData?.consumedPercentage ?? 0);
 
   useEffect(() => {
@@ -102,7 +108,6 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
     }
   };
 
-  const buttonColor = isEdit ? COLORS.primaryDark : COLORS.primary;
   const ripenessStops = ['#22c55e', '#a3e635', '#fbbf24', '#f97316', '#dc2626'];
   const getRipenessColor = (index: number) => ripenessStops[Math.min(Math.max(index, 0), ripenessStops.length - 1)];
   const selectedRipenessIndex = ripeness ? RIPENESS_LEVELS.findIndex((option) => option.value === ripeness) : 0;
@@ -133,9 +138,13 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <ChipSelector options={CONFECTIONS} selectedValue={confection} onSelect={(value) => setConfection(value as ConfectionType | null)} />
 
       {/* Ripeness clarification */}
-      <Text style={styles.formHelperText}>
-        Fresh items have a Ripeness Status
-      </Text>
+      
+      <View style={styles.formHelperRow}>
+        <Ionicons name="information-circle-outline" size={16} color="#64748b" />
+        <Text style={styles.formHelperText}>
+          Fresh items have a Ripeness Status.
+        </Text>
+      </View>
 
       {/* RIPENESS shown only if the category is 'Fresh' --> conditional rendering*/}
       {isFreshConfection(confection) ? (
@@ -243,15 +252,34 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         </View>
       </View>
 
-      <TouchableOpacity style={[styles.mainButton, { backgroundColor: buttonColor }]} onPress={handlePress}>
-        <Text style={styles.buttonText}>{isEdit ? 'Update Ingredient' : 'Add Ingredient'}</Text>
+      {/* Add / Update Ingredient */}
+      <TouchableOpacity style={styles.mainButton} onPress={handlePress}>
+        <Text style={styles.buttonText}>
+          {isEdit ? 'Update Ingredient' : 'Add Ingredient'}
+        </Text>
       </TouchableOpacity>
 
+      {/* Cancel */}
       {isEdit && onCancel && (
-        <TouchableOpacity style={[styles.mainButton, { backgroundColor: '#94a3b8', marginTop: 8 }]} onPress={onCancel}>
+        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
           <Text style={styles.buttonText}>Cancel</Text>
         </TouchableOpacity>
       )}
+
+      {/* Delete Button */}
+      {isEdit && onDelete && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => {
+            console.log('Delete button pressed inside IngredientForm'); // debug log
+            onDelete();
+          }}
+          activeOpacity={0.8}
+           >
+      <Text style={styles.buttonText}>Delete Ingredient</Text>
+    </TouchableOpacity>
+     )}
+
     </ScrollView>
   );
 };
