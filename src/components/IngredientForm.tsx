@@ -122,7 +122,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <Text style={styles.label}>Name* (e.g. Lettuce)</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ingredient Name" placeholderTextColor={COLORS.placeholder} />
 
-      <Text style={styles.label}>Brand (e.g. Esselunga, Conad)</Text>
+      <Text style={styles.label}>Brand (e.g. Esselunga, Primia)</Text>
       <TextInput style={styles.input} value={brand} onChangeText={setBrand} placeholder="Optional brand" placeholderTextColor={COLORS.placeholder} />
 
       <Text style={styles.label}>Barcode (numeric)</Text>
