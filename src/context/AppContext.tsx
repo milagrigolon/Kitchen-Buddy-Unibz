@@ -146,10 +146,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const activeIngredients = useMemo(() => ingredients, [ingredients]);
-  const lowIngredients = useMemo(
-    () => ingredients.filter((item) => (item.quantity ?? 0) <= 1),
-    [ingredients]
-  );
+  
+  const lowIngredients = useMemo(() => {
+    return ingredients.filter((item) => {
+      const isLowByPercentage = (item.consumedPercentage ?? 0) >= 75;
+      
+      const isEmpty = (item.quantity ?? 0) === 0; 
+
+      const isLowByUnits = item.unit=== 'pcs' && (item.quantity ?? 0) <= 1;
+
+      return isLowByPercentage || isEmpty || isLowByUnits;
+    });
+  }, [ingredients]);
 
   const value: AppContextType = {
     ingredients,
