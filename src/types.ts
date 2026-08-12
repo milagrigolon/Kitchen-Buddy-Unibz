@@ -1,6 +1,4 @@
-// Shared domain model for Kitchen Buddy.
-// This file preserves the existing ingredient model and extends it to support
-// the pair-project features required by the final assignment.
+// shared TYPES (Domain Model) for Kitchen Buddy
 
 export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'other';
 export type Location = 'fridge' | 'freezer' | 'pantry';

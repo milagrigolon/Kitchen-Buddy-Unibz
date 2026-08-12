@@ -28,6 +28,9 @@ const ExpiringStack = createNativeStackNavigator<ExpiringStackParamList>();
 const MyItemsStack = createNativeStackNavigator<MyItemsStackParamList>();
 
 /**
+ * STACK BASED NAVIGATION for EDITING INGREDIENTS
+ */
+/**
  * ExpiringNavigator wraps the expiring flow with a screen stack so the user can
  * navigate from the list into the edit form when an ingredient is selected.
  */
@@ -49,9 +52,9 @@ const MyItemsNavigator: React.FC = () => (
 );
 
 /**
- * AppNavigator is the central routing layer.
+ * AppNavigator is the CENTRAL ROUTING LAYER
  * It shows an initial loading indicator while the app bootstraps, and then
- * exposes the bottom-tab flow used by the assignment.
+ * exposes the bottom-tab flow.
  */
 export const AppNavigator: React.FC = () => {
   const { status } = useAppStatus();
@@ -64,6 +67,13 @@ export const AppNavigator: React.FC = () => {
       </View>
     );
   }
+
+    /** TAB BASED NAVIGATION for the 4 main screens: 
+    * - Add
+    * - Expiring
+    * - My Items
+    * - Groceries
+     */
 
   return (
     <NavigationContainer>
@@ -99,6 +109,7 @@ export const AppNavigator: React.FC = () => {
             fontSize: 11,
             marginTop: 2,
           },
+
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap = 'add-circle-outline';
 

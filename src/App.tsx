@@ -1,4 +1,5 @@
-// App entry point: wraps navigation with safe-area and app state providers.
+// APP ENTRY POINT: wraps navigation with safe-area and app state providers
+
 import 'react-native-gesture-handler';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
