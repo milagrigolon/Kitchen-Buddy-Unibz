@@ -542,6 +542,13 @@ export const styles = StyleSheet.create({
         fontFamily: FONT_FAMILY,
     },
     // Aggiungi in styles.ts / styles.js:
+    cardFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Spinge i tag (OPEN) a sinistra e Missing Data a destra
+    marginTop: 8,
+    alignItems: 'flex-end',
+    
+    },
     missingDetailsBadge: {
         backgroundColor: '#fffbebe', // Sfondo giallo tenue / warning
         borderColor: COLORS.warning,
