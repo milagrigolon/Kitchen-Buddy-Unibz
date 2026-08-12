@@ -7,10 +7,10 @@ import { IngredientList } from '../components/IngredientList';
 import { useIngredients } from '../context/AppContext';
 import { CATEGORIES, CONFECTIONS, LOCATIONS } from '../constants/options';
 import { COLORS, styles } from '../theme/styles';
-import { Category, ConfectionType, Ingredient, Location } from '../types';
-import { filterIngredients, getMissingDataItems, getRecentlyAdded } from '../utils/helpers';
+import { Category, ConfectionType, Ingredient, Location, QueryMode } from '../types';
+import { filterIngredients, getMissingDataItems, getRecentlyAdded, filterRecentIngredients } from '../utils/helpers';
 
-type QueryMode = 'all' | 'missing' | 'recent';
+
 
 type MyItemsStackParamList = {
   MyItemsHome: undefined;
@@ -34,10 +34,13 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
   const filteredIngredients = useMemo(() => {
     let result = [...ingredients];
 
+    // 2. handling of the 4 DIFFERENT QUERY MODES
     if (queryMode === 'missing') {
       result = getMissingDataItems(result);
-    } else if (queryMode === 'recent') {
-      result = getRecentlyAdded(result);
+    } else if (queryMode === 'recent_added') {
+      result = getRecentlyAdded(result, 5); // 5 last added items
+    } else if (queryMode === 'recently_bought') {
+      result = filterRecentIngredients(result); // isRecent: true
     }
 
     return filterIngredients(result, searchTerm, selectedLocation, selectedCategory, selectedConfection);
@@ -82,7 +85,8 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
           {[
             { label: 'All', value: 'all' },
             { label: 'Missing data', value: 'missing' },
-            { label: 'Recent', value: 'recent' },
+            { label: 'Recently Added', value: 'recent_added' },
+            { label: 'Recently Bought Groceries', value: 'recently_bought' },
           ].map((option) => (
             <TouchableOpacity
               key={option.value}

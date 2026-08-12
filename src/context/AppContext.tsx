@@ -8,6 +8,7 @@ import * as Location from 'expo-location';
 import { DEFAULT_SHOPS, MAX_DISTANCE_METERS } from '../constants/options';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { GroceryItem, Ingredient, Shop } from '../types';
+import { calculateSuggestedExpiry } from '../utils/helpers';
 
 interface AppContextType {
   ingredients: Ingredient[];
@@ -93,7 +94,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateIngredient = (updatedIngredient: Ingredient): void => {
-    setIngredients((prev) => prev.map((item) => (item.id === updatedIngredient.id ? updatedIngredient : item)));
+    setIngredients((prev) =>
+      prev.map((item) =>
+        item.id === updatedIngredient.id
+          ? { ...updatedIngredient, isRecent: false } // reset flag when recently bought item is edited
+          : item
+      )
+    );
   };
 
   const removeIngredient = (id: string): void => {
@@ -138,6 +145,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const buyGrocery = (id: string): void => {
+    const itemToBuy = groceries.find((item) => item.id === id);
+
+    if (itemToBuy) {
+      // helper to calculate expiring date suggested
+      const proposedExpiry = calculateSuggestedExpiry(itemToBuy.name, ingredients);
+
+      const newIngredient = {
+        id: `ing-${Date.now()}`,
+        name: itemToBuy.name,
+        expirationDate: proposedExpiry,
+        isRecent: true, // for recently bought groceries to be modified later on
+      } as Ingredient;
+
+      addIngredient(newIngredient);
+    }
     setGroceries((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -150,12 +172,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lowIngredients = useMemo(() => {
     return ingredients.filter((item) => {
       const isLowByPercentage = (item.consumedPercentage ?? 0) >= 75;
-      
-      const isEmpty = (item.quantity ?? 0) === 0; 
+      const isEmpty = (item.consumedPercentage ?? 0) >= 100;
 
-      const isLowByUnits = item.unit=== 'pcs' && (item.quantity ?? 0) <= 1;
+      // PREVIOUS USED CHECKS - not relevant for the purpose
+      // const isEmpty = (item.quantity ?? 0) === 0; 
+      // const isLowByUnits = item.unit=== 'pcs' && (item.quantity ?? 0) <= 1;
 
-      return isLowByPercentage || isEmpty || isLowByUnits;
+      return isLowByPercentage; /* || isEmpty /*|| isLowByUnits; */
     });
   }, [ingredients]);
 

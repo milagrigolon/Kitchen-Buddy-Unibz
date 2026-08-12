@@ -81,7 +81,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       createdAt: initialData?.createdAt ?? new Date().toISOString(),
       quantity,
       unit,
-      consumedPercentage, // <-- AGGIUNGI QUESTA RIGA
+      consumedPercentage, 
       ripeness: isFreshConfection(confection) ? ripeness : null,
       isOpen,
       isFrozen,
@@ -99,7 +99,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       setExpiration('');
       setQuantity(1);
       setUnit('pcs');
-      setConsumedPercentage(0); // <-- AGGIUNGI QUESTA RIGA PER RESETTARE LO STATO
+      setConsumedPercentage(0); 
       setRipeness(null);
       setIsOpen(false);
       setIsFrozen(false);

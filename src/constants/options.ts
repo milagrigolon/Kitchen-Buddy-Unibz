@@ -26,7 +26,7 @@ export const LOCATIONS: OptionItem<Location>[] = [
 export const CONFECTIONS: OptionItem<ConfectionType>[] = [
   { label: 'Fresh', value: 'fresh', icon: 'leaf-sharp', iconFamily: 'ionicons' },
   { label: 'Canned', value: 'canned', icon: 'jar', iconFamily: 'fontawesome' },
-  { label: 'Frozen', value: 'frozen', icon: 'snowflake-thermometer', iconFamily: 'material' },
+  { label: 'Frozen', value: 'frozen', icon: 'snowflake', iconFamily: 'material' },
   { label: 'Cured', value: 'cured', icon: 'sausage', iconFamily: 'material' },
 ];
 

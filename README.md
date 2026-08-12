@@ -6,12 +6,18 @@ Kitchen Buddy is a React Native + Expo + TypeScript app for tracking kitchen ite
 
 The application supports the assignment's main workflow:
 
-- add ingredients with name, category, location, confection, and expiration
+- add ingredients with name, category, location, confection, and expiration date
+- moreover, quantity can be inserted, with unit, amount and amount consumed used to track ingredient needs, and a open/frozen flag can be activated
+- for the items with fresh confection, ripeness can be tracked
+- open flag moves ingredients in expiring soon
+- frozen flag moves items in the freezer that can last up to 6 months
 - browse ingredients with text search and chip-based filtering
+- filter items by missing data, 5 most recently added items, and recently bought groceries for quick editing
 - inspect the expiring-soon query in a dedicated tab
 - persist ingredients and grocery items across app restarts
-- track ripeness and open/frozen flags
+
 - manage grocery items with quick-add and low-stock suggestions
+- bought grocery items automatically transition into My Items with suggested expiration dates derived from previous records
 
 ## Project structure
 

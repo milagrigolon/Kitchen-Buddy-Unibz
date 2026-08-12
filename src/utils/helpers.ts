@@ -1,19 +1,41 @@
 // src/utils/helpers.ts
 
-import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit } from '../types';
+import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit, GroceryItem } from '../types';
 import { MS_PER_DAY } from './constants';
 
 /**
- * Map a quick estimate such as "1 week" to the corresponding number of days.
+ * Map a dynamic expiration expression such as "4 days", "2 weeks", "7 months"
+  * to the corresponding number of days.
  */
 const getDaysToAdd = (exp: string): number => {
+  const cleanExp = exp.toLowerCase().trim();
+
+  // 1. match dynamic days (e.g., "4 days", "1 day")
+  const dayMatch = cleanExp.match(/^(\d+)\s*day(s)?$/);
+  if (dayMatch) {
+    return parseInt(dayMatch[1], 10);
+  }
+
+  // 2. match dynamic weeks (e.g., "2 weeks", "1 week", "8 weeks")
+  const weekMatch = cleanExp.match(/^(\d+)\s*week(s)?$/);
+  if (weekMatch) {
+    return parseInt(weekMatch[1], 10) * 7;
+  }
+
+  // 3. match dynamic months (e.g., "7 months", "1 month")
+  const monthMatch = cleanExp.match(/^(\d+)\s*month(s)?$/);
+  if (monthMatch) {
+    return parseInt(monthMatch[1], 10) * 30; // standard approximation of a month in days
+  }
+
+  // 4. fallback static mapping
   const mapping: Record<string, number> = {
     '1 week': 7,
     '10 days': 10,
     '1 month': 30,
   };
 
-  return mapping[exp] || 0;
+  return mapping[cleanExp] || 0;
 };
 
 /**
@@ -71,7 +93,7 @@ export interface IngredientDraftInput {
   createdAt: string;
   quantity?: number;
   unit?: Unit;
-  consumedPercentage?: number; // ADDED: Optional consumed percentage field
+  consumedPercentage?: number; // ADDED: optional consumed percentage field
   ripeness?: RipenessStatus | null;
   isOpen?: boolean;
   isFrozen?: boolean;
@@ -100,6 +122,10 @@ export const buildIngredientFromDraft = ({
 }: IngredientDraftInput): Ingredient => {
   const { finalExp, timestamp } = parseExpiration(expiration);
 
+  // optional FROZEN handling: if frozen, moves the location to 'freezer' 
+  // and calculates the expiring date to be in 6 months
+  // const frozenData = applyFrozenRules(isFrozen, location, finalExp, timestamp);
+
   return {
     id,
     name: name.trim(),
@@ -122,8 +148,6 @@ export const buildIngredientFromDraft = ({
 };
 /**
  * Convert a timestamp into the number of days remaining until expiration.
- *
- * Examples:
  * - 3 days from now => 3
  * - today => 0
  * - already expired => negative value
@@ -149,6 +173,11 @@ export const filterExpiringWithin = (
   now = Date.now()
 ): Ingredient[] => {
   return ingredients.filter((ingredient) => {
+    // if the ingredient is open, immediately include it in "Expiring Soon"
+    if (ingredient.isOpen) {
+      return true;
+    }
+
     const timestamp = ingredient.expirationTimestamp ?? parseExpiration(ingredient.expirationDate || '').timestamp;
     const daysUntil = getDaysUntilExpiration(timestamp, now);
 
@@ -170,14 +199,22 @@ export const getMissingDataItems = (ingredients: Ingredient[]): Ingredient[] => 
 };
 
 /**
- * Query 2: most recent items first.
+ * Query 2: most recent items first (limited to 5 items)
  */
-export const getRecentlyAdded = (ingredients: Ingredient[]): Ingredient[] => {
-  return [...ingredients].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
+export const getRecentlyAdded = (ingredients: Ingredient[], limit = 5): Ingredient[] => {
+  const sorted = [...ingredients].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0).getTime();
+    const dateB = new Date(b.createdAt || 0).getTime();
     return dateB - dateA;
   });
+  return limit ? sorted.slice(0, limit) : sorted;
+};
+
+/**
+ * Query 2.1: Filter ingredients for RECENT BOUGHT (isRecent === true)
+ */
+export const filterRecentIngredients = (ingredients: Ingredient[]): Ingredient[] => {
+  return ingredients.filter((item) => item.isRecent === true);
 };
 
 /**
@@ -203,6 +240,37 @@ export const filterIngredients = (
 };
 
 /**
+ * Helper to handle FROZEN RULES: forces location to 'freezer' and 
+ * sets an extended expiration of up to 6 months if not provided.
+ */
+const applyFrozenRules = (
+  isFrozen?: boolean,
+  location?: Location | null,
+  finalExp?: string,
+  timestamp?: number | null
+) => {
+  if (!isFrozen) {
+    return { location, finalExp, timestamp };
+  }
+
+  let expDate = finalExp;
+  let expTimestamp = timestamp;
+
+  if (!expDate) {
+    const freezeDate = new Date();
+    freezeDate.setMonth(freezeDate.getMonth() + 6);
+    expDate = `${String(freezeDate.getDate()).padStart(2, '0')}/${String(freezeDate.getMonth() + 1).padStart(2, '0')}/${freezeDate.getFullYear()}`;
+    expTimestamp = freezeDate.getTime();
+  }
+
+  return {
+    location: 'freezer' as Location,
+    finalExp: expDate,
+    timestamp: expTimestamp,
+  };
+};
+
+/**
  * Checks if the selected confection type is 'fresh', used for Ripeness status
  */
 export const isFreshConfection = (confection: ConfectionType | null | undefined): boolean => {
@@ -215,4 +283,25 @@ export const isFreshConfection = (confection: ConfectionType | null | undefined)
  */
 export const getQuantityStep = (unit: Unit): number => {
   return unit === 'kg' || unit === 'l' ? 0.25 : 1;
+};
+
+/**
+ * Calculates expiring date proposed for ingredient recently bought based on
+ * a product already in the items.
+ */
+export const calculateSuggestedExpiry = (
+  itemName: string,
+  allIngredients: Ingredient[]
+): string => {
+  const existingIngredient = allIngredients.find(
+    (ing) => ing.name.toLowerCase() === itemName.toLowerCase()
+  );
+
+  if (existingIngredient && existingIngredient.expirationDate) {
+    const newExpiry = new Date();
+    newExpiry.setDate(newExpiry.getDate() + 7);
+    return newExpiry.toISOString().split('T')[0];
+  }
+
+  return '';
 };
