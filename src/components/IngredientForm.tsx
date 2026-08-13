@@ -11,7 +11,7 @@ import { QuantityControl } from './QuantityControl';
 import { CATEGORIES, CONFECTIONS, LOCATIONS, RIPENESS_LEVELS } from '../constants/options';
 import { Ingredient, Category, Location, ConfectionType, RipenessStatus, Unit } from '../types';
 import { COLORS, styles } from '../theme/styles';
-import { buildIngredientFromDraft, isFreshConfection } from '../utils/helpers';
+import { buildIngredientFromDraft, isFreshConfection, applyFrozenRules } from '../utils/helpers';
 import { BarcodeScanSuggestion } from '../services/openFoodFacts';
 
 interface IngredientFormProps {
@@ -53,6 +53,8 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   const [barcode, setBarcode] = useState<string>(initialData?.barcode ?? '');
   // track consumed percentage state, starts at 0
   const [consumedPercentage, setConsumedPercentage] = useState<number>(initialData?.consumedPercentage ?? 0);
+  const [originalExpiration, setOriginalExpiration] = useState<string>(initialData?.expirationDate ?? '');  
+  const [originalLocation, setOriginalLocation] = useState<Location | null>(initialData?.location ?? null);
 
   useEffect(() => {
     if (!prefillData) {
@@ -65,11 +67,33 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
     setBarcode(prefillData.barcode ?? '');
   }, [prefillData]);
 
+  
+  const handleFrozenToggle = (value: boolean) => {
+    setIsFrozen(value);
+
+    if (value) {
+      // 1. Salva la data attuale in memoria prima di modificarla
+      setOriginalExpiration(expiration);
+      setOriginalLocation(location);
+
+      // 2. Calcola freezer + 6 mesi
+      const result = applyFrozenRules(true, location, expiration);
+      if (result.location) setLocation(result.location as Location);
+      if (result.finalExp) setExpiration(result.finalExp);
+    } else {
+      // 3. Ripristina la data salvata
+      setExpiration(originalExpiration);
+      setLocation(originalLocation);
+    }
+  };
+  
+
   const handlePress = (): void => {
     if (!name.trim()) {
       Alert.alert('Attention', 'Please enter a name for the ingredient.');
       return;
     }
+
 
     const savedIngredient = buildIngredientFromDraft({
       id: initialData?.id ?? Date.now().toString(),
@@ -132,7 +156,17 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <ChipSelector options={CATEGORIES} selectedValue={category} onSelect={(value) => setCategory(value as Category | null)} />
 
       <Text style={styles.label}>Location</Text>
-      <ChipSelector options={LOCATIONS} selectedValue={location} onSelect={(value) => setLocation(value as Location | null)} />
+      <ChipSelector 
+        options={LOCATIONS} 
+        selectedValue={location} 
+        onSelect={(value) => {
+          const newLoc = value as Location | null;
+          setLocation(newLoc);
+          if (!isFrozen) {
+            setOriginalLocation(newLoc); // Aggiorna la memoria solo se non è congelato
+          }
+        }} 
+      />
 
       <Text style={styles.label}>Confection</Text>
       <ChipSelector options={CONFECTIONS} selectedValue={confection} onSelect={(value) => setConfection(value as ConfectionType | null)} />
@@ -212,7 +246,16 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         </>
       ) : null}
 
-      <EstimateDatePicker value={expiration} onChange={setExpiration} />
+      <EstimateDatePicker 
+        value={expiration} 
+        onChange={(newDate) => {
+          setExpiration(newDate);
+          if (!isFrozen) {
+            setOriginalExpiration(newDate);
+          }
+        }} 
+      />
+
       <QuantityControl
         value={quantity}
         unit={unit}
@@ -248,7 +291,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
               </Text>
             </View>
           </View>
-          <Switch value={isFrozen} onValueChange={setIsFrozen} />
+          <Switch value={isFrozen} onValueChange={handleFrozenToggle} />
         </View>
       </View>
 

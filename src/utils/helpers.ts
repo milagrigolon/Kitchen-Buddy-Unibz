@@ -243,30 +243,39 @@ export const filterIngredients = (
  * Helper to handle FROZEN RULES: forces location to 'freezer' and 
  * sets an extended expiration of up to 6 months if not provided.
  */
-const applyFrozenRules = (
+export const applyFrozenRules = (
   isFrozen?: boolean,
   location?: Location | null,
   finalExp?: string,
-  timestamp?: number | null
-) => {
-  if (!isFrozen) {
-    return { location, finalExp, timestamp };
+  ) => {
+    if (!isFrozen) {
+      return { location, finalExp };
+    }
+    let baseDate = new Date();
+
+  // Se c'era già una data in formato DD/MM/YYYY, usala come partenza
+    if (finalExp && finalExp.includes('/')) {
+      const parts = finalExp.split('/');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+          baseDate = new Date(year, month, day);
+          }
+    }
   }
 
-  let expDate = finalExp;
-  let expTimestamp = timestamp;
+  // Aggiunge 6 mesi alla data di partenza
+  baseDate.setMonth(baseDate.getMonth() + 6);
 
-  if (!expDate) {
-    const freezeDate = new Date();
-    freezeDate.setMonth(freezeDate.getMonth() + 6);
-    expDate = `${String(freezeDate.getDate()).padStart(2, '0')}/${String(freezeDate.getMonth() + 1).padStart(2, '0')}/${freezeDate.getFullYear()}`;
-    expTimestamp = freezeDate.getTime();
-  }
+  const day = String(baseDate.getDate()).padStart(2, '0');
+  const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+  const year = baseDate.getFullYear();
 
   return {
     location: 'freezer' as Location,
-    finalExp: expDate,
-    timestamp: expTimestamp,
+    finalExp: `${day}/${month}/${year}`,
   };
 };
 
