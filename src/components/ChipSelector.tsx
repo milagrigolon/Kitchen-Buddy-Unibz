@@ -2,7 +2,7 @@
 // Turns a list of options into a compact tappable control
 
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { COLORS, styles } from '../theme/styles';
 
@@ -47,30 +47,39 @@ export const ChipSelector: React.FC<ChipSelectorProps> = ({
     };
 
     return (
-        <View style={styles.chipGroup}>
-            {options.map((option) => {
-                const isSelected = selectedValue === option.value;
+        <View style={{ marginVertical: 4, minHeight: 40 }}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.chipGroup,
+                    { flexDirection: 'row', alignItems: 'center', gap: 8 }
+                ]}
+            >
+                {options.map((option) => {
+                    const isSelected = selectedValue === option.value;
 
-                return (
-                    <TouchableOpacity
-                        key={option.value}
-                        style={[styles.chip, isSelected && styles.chipSelected]}
-                        onPress={() => {
-                            if (isSelected) {
-                                onSelect(null);
-                            } else {
-                                onSelect(option.value);
-                            }
-                        }}
-                        activeOpacity={0.7}
-                    >
-                        {renderIcon(option, isSelected)}
-                        <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                            {option.label}
-                        </Text>
-                    </TouchableOpacity>
-                );
-            })}
+                    return (
+                        <TouchableOpacity
+                            key={option.value}
+                            style={[styles.chip, isSelected && styles.chipSelected]}
+                            onPress={() => {
+                                if (isSelected) {
+                                    onSelect(null);
+                                } else {
+                                    onSelect(option.value);
+                                }
+                            }}
+                            activeOpacity={0.7}
+                        >
+                            {renderIcon(option, isSelected)}
+                            <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                                {option.label}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </ScrollView>
         </View>
     );
 };

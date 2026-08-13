@@ -44,5 +44,6 @@ export const DEFAULT_SHOPS: Shop[] = [
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export const MAX_DISTANCE_METERS = 200;
+export const DAY_OPTIONS = [3, 7, 15];
 
 export const DEFAULT_UNITS: Unit[] = ['pcs', 'kg', 'l'];

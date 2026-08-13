@@ -21,23 +21,30 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({ ingredient, onPr
     ingredient.expirationDate.trim() === '';
 
   return (
-    <TouchableOpacity style={styles.card} onPress={() => onPress(ingredient)} activeOpacity={0.9}>
-      {/* 1. TITOLO IN ALTO (Senza il badge affiancato) */}
+    <TouchableOpacity
+      style={[
+        styles.card,
+        ingredient.isFrozen ? styles.frozenCard : null
+      ]}
+      onPress={() => onPress(ingredient)}
+      activeOpacity={0.9}
+    >
+      {/* 1. NAME */}
       <View style={styles.cardRow}>
         <Text style={styles.cardTitle}>{ingredient.name}</Text>
       </View>
 
-      {/* 2. CATEGORIA E POSIZIONE */}
+      {/* 2. CATEGORY AND POSITION*/}
       <Text style={styles.cardLoc}>
         {ingredient.category ?? 'No category'} | {ingredient.location ?? 'No location'}
       </Text>
 
-      {/* 3. SCADENZA */}
+      {/* 3. EXP DATE */}
       <Text style={styles.cardExp}>
         Expires: {ingredient.expirationDate && ingredient.expirationDate.trim() !== '' ? ingredient.expirationDate : 'Not set'}
       </Text>
 
-      {/* 4. RIGA IN BASSO: Tag a sinistra e Badge a DESTRA */}
+      {/* 4. Frozen / Open tag*/}
       <View style={styles.cardFooterRow}>
         <View style={styles.ingredientStatusRow}>
           {ingredient.isFrozen ? <Text style={styles.ingredientStatusTag}>FROZEN</Text> : null}
@@ -45,7 +52,7 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({ ingredient, onPr
           {ingredient.ripeness ? <Text style={styles.ingredientStatusTag}>{ingredient.ripeness.toUpperCase()}</Text> : null}
         </View>
 
-        {/* Badge posizionato nell'angolo in basso a destra */}
+        {/* BADGE to be positioned bottom right*/}
         {hasMissingDetails && (
           <View style={styles.missingDetailsBadge}>
             <Text style={styles.missingDetailsText}>Missing details</Text>

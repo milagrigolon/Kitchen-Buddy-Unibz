@@ -60,7 +60,10 @@ export const ExpiringScreen: React.FC<ExpiringScreenProps> = ({ navigation }) =>
         />
 
         <DaysThresholdControl value={daysThreshold} onChange={setDaysThreshold} />
-        <IngredientList ingredients={expiringIngredients} onPress={handlePress} />
+        
+        
+      <IngredientList ingredients={expiringIngredients} onPress={handlePress} />
+      
       </View>
     </View>
   );

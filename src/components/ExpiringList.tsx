@@ -35,7 +35,7 @@ export const ExpiringList: React.FC<ExpiringListProps> = ({ ingredients }) => {
             <View style={styles.controlContainer}>
                 <Text style={styles.controlLabel}>Show items expiring within:</Text>
                 <View style={styles.buttonGroup}>
-                    {[3, 7, 14, 30].map((days) => (
+                    {[3, 7, 15].map((days) => (
                         <TouchableOpacity
                             key={days}
                             style={[

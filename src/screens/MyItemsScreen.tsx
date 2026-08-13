@@ -85,8 +85,8 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
           {[
             { label: 'All', value: 'all' },
             { label: 'Missing data', value: 'missing' },
-            { label: 'Recently Added', value: 'recent_added' },
-            { label: 'Recently Bought Groceries', value: 'recently_bought' },
+            { label: 'Recent', value: 'recent_added' },
+            { label: 'Recently Bought', value: 'recently_bought' },
           ].map((option) => (
             <TouchableOpacity
               key={option.value}

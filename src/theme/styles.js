@@ -218,27 +218,36 @@ export const styles = StyleSheet.create({
     },
     buttonGroup: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        gap: 8, // Aggiunge uno spazio uniforme tra i bottoni
+        marginTop: 8,
     },
     dayButton: {
-        paddingVertical: 6,
+        flex: 1, 
+        paddingVertical: 8,
         paddingHorizontal: 12,
-        borderRadius: 12,
-        backgroundColor: COLORS.chipBg,
+        borderRadius: 20, 
+        backgroundColor: '#f1f5f9',
+        alignItems: 'center', 
+        justifyContent: 'center',
     },
     dayButtonActive: {
         backgroundColor: COLORS.primary,
     },
     dayButtonText: {
-        fontSize: 13,
+        fontSize: 14,
         color: COLORS.textDark,
         fontWeight: '500',
         fontFamily: FONT_FAMILY,
+        textAlign: 'center',
     },
     dayButtonTextActive: {
         color: COLORS.white,
         fontWeight: 'bold',
         fontFamily: FONT_FAMILY,
+        fontWeight: '700',
     },
     emptyContainer: {
         marginTop: 40,
@@ -283,6 +292,10 @@ export const styles = StyleSheet.create({
         fontSize: 13,
         marginTop: 2,
         fontFamily: FONT_FAMILY,
+    },
+    frozenCard: {
+        backgroundColor: '#e3f4ff', 
+        borderLeftColor: '#0284c7',
     },
     sectionTitle: {
         textAlign: 'center',
