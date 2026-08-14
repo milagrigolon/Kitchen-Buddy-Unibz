@@ -6,7 +6,7 @@ export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
 export type ShopType = 'general' | 'butcher' | 'fishmonger';
-export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'check_ripeness';
+export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'ripeness_check';
 
 export type Ingredient = {
   id: string;
@@ -29,11 +29,13 @@ export type Ingredient = {
   brand?: string | null;
   imageUrl?: string | null;
   isRecent?: boolean;
+  isInGroceryList?: boolean;
 };
 
 export type GroceryItem = {
   id: string;
   name: string;
+  category?: Category | null;
   quantity: number;
   unit: Unit;
   createdAt: string;

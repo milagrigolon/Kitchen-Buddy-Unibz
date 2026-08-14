@@ -1,23 +1,24 @@
 # Kitchen Buddy
 
-Kitchen Buddy is a React Native + Expo + TypeScript app for tracking kitchen items and managing grocery needs.
+Kitchen Buddy is a React Native + Expo + TypeScript application designed for smart kitchen inventory tracking, food waste prevention, and grocery list management.
 
 ## What the app does
 
 The application supports the assignment's main workflow:
 
-- add ingredients with name, category, location, confection, and expiration date
-- moreover, quantity can be inserted, with unit, amount and amount consumed used to track ingredient needs, and a open/frozen flag can be activated
-- for the items with fresh confection, ripeness can be tracked
-- open flag moves ingredients in expiring soon
-- frozen flag moves items in the freezer that can last up to 6 months
-- browse ingredients with text search and chip-based filtering
-- filter items by missing data, 5 most recently added items, and recently bought groceries for quick editing
-- inspect the expiring-soon query in a dedicated tab
-- persist ingredients and grocery items across app restarts
-
-- manage grocery items with quick-add and low-stock suggestions
-- bought grocery items automatically transition into My Items with suggested expiration dates derived from previous records
+- **Add & Manage Ingredients**: Track items by name, category, storage location (Pantry, Fridge, Freezer), confection type, and expiration date.
+- **Quantity & Consumption Tracking**: Define units, amounts, and track consumed quantities to monitor food usage.
+- **Freshness & Ripeness**: Monitor the ripeness status for fresh produce.
+- **Smart Expiration Rules**:
+  - Marking an item as *Open* automatically shortens the window and moves it to *Expiring Soon*.
+  - Marking an item as *Frozen* extends shelf-life up to 6 months in the freezer view.
+- **Search, Filter & Sort**: Browse inventory using free-text search, chip selectors, missing data filters, recent entries, and quick edits.
+- **Expiring Soon Hub**: Dedicated query screen with an adjustable dynamic threshold window (e.g., 3, 5, 7 days).
+- **Automated Grocery Integration**:
+  - Automatically identifies low-stock items and suggests them for purchase.
+  - Bought items automatically migrate into *My Items* with smart predicted shelf-lives derived from past entries.
+- **Barcode Scanning & Fast Entry**: Quickly look up product details from barcodes using external product databases.
+- **Proximity & Shop Detection**: Alerts the user when near grocery store locations.
 
 ## Project structure
 

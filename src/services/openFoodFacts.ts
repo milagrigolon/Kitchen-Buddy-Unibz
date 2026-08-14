@@ -13,12 +13,43 @@ const toCategory = (rawCategory?: string | null): Category | null => {
 
   const normalized = rawCategory.toLowerCase();
 
-  if (normalized.includes('fruit')) return 'fruit';
-  if (normalized.includes('vegetable') || normalized.includes('legume')) return 'vegetable';
-  if (normalized.includes('milk') || normalized.includes('cheese') || normalized.includes('dairy')) return 'dairy';
-  if (normalized.includes('fish') || normalized.includes('seafood')) return 'fish';
-  if (normalized.includes('meat') || normalized.includes('beef') || normalized.includes('chicken') || normalized.includes('pork')) return 'meat';
-  if (normalized.includes('drink') || normalized.includes('water') || normalized.includes('juice') || normalized.includes('soda')) return 'liquid';
+  if (normalized.includes('fruit')) {
+    return 'fruit';
+  }
+
+  if (normalized.includes('vegetable') || normalized.includes('legume')) {
+    return 'vegetable';
+  }
+
+  if (
+    normalized.includes('milk') ||
+    normalized.includes('cheese') ||
+    normalized.includes('dairy')
+  ) {
+    return 'dairy';
+  }
+
+  if (normalized.includes('fish') || normalized.includes('seafood')) {
+    return 'fish';
+  }
+
+  if (
+    normalized.includes('meat') ||
+    normalized.includes('beef') ||
+    normalized.includes('chicken') ||
+    normalized.includes('pork')
+  ) {
+    return 'meat';
+  }
+
+  if (
+    normalized.includes('drink') ||
+    normalized.includes('water') ||
+    normalized.includes('juice') ||
+    normalized.includes('soda')
+  ) {
+    return 'liquid';
+  }
 
   return 'other';
 };
@@ -36,7 +67,9 @@ const safeText = (value?: string | null): string | null => {
  * fetchProductByBarcode queries OpenFoodFacts and maps the returned product
  * into a safe ingredient suggestion that the form can prefill.
  */
-export const fetchProductByBarcode = async (barcode: string): Promise<BarcodeScanSuggestion | null> => {
+export const fetchProductByBarcode = async (
+  barcode: string
+): Promise<BarcodeScanSuggestion | null> => {
   const normalizedBarcode = barcode.trim();
 
   if (!normalizedBarcode) {

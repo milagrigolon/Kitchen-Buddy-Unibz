@@ -1,127 +1,176 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ChipSelector } from '../components/ChipSelector';
 import { Header } from '../components/Header';
 import { IngredientList } from '../components/IngredientList';
-import { useIngredients } from '../context/AppContext';
 import { CATEGORIES, CONFECTIONS, LOCATIONS } from '../constants/options';
+import { useIngredients } from '../context/AppContext';
 import { COLORS, styles } from '../theme/styles';
 import { Category, ConfectionType, Ingredient, Location, QueryMode } from '../types';
 import {
   filterIngredients,
+  filterNeedsRipenessCheck,
+  filterRecentIngredients,
   getMissingDataItems,
   getRecentlyAdded,
-  filterRecentIngredients,
-  filterRipenessDue,
 } from '../utils/helpers';
-
-const QUERY_OPTIONS: Array<{ label: string; value: QueryMode }> = [
-  { label: 'All', value: 'all' },
-  { label: 'Missing data', value: 'missing' },
-  { label: 'Recent', value: 'recent_added' },
-  { label: 'Recently Bought', value: 'recently_bought' },
-  { label: 'Check Ripeness', value: 'check_ripeness' },
-];
 
 type MyItemsStackParamList = {
   MyItemsHome: undefined;
   EditIngredient: { ingredient: Ingredient };
 };
 
-type MyItemsScreenProps = NativeStackScreenProps<MyItemsStackParamList, 'MyItemsHome'>;
+type MyItemsScreenProps =
+  NativeStackScreenProps<MyItemsStackParamList, 'MyItemsHome'>;
 
-/**
- * MyItemsScreen is the queries tab where the user can search for ingredient lists
- * by text and by chip-driven filter criteria.
- */
+type QueryOption = {
+  label: string;
+  value: QueryMode;
+};
+
+const QUERY_OPTIONS: QueryOption[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Missing data', value: 'missing' },
+  { label: 'Recent', value: 'recent_added' },
+  { label: 'Recently Bought', value: 'recently_bought' },
+];
+
+const applyQueryMode = (
+  ingredients: Ingredient[],
+  queryMode: QueryMode
+): Ingredient[] => {
+  if (queryMode === 'missing') {
+    return getMissingDataItems(ingredients);
+  }
+
+  if (queryMode === 'recent_added') {
+    return getRecentlyAdded(ingredients, 5);
+  }
+
+  if (queryMode === 'recently_bought') {
+    return filterRecentIngredients(ingredients);
+  }
+
+  return ingredients;
+};
+
 export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
   const { ingredients } = useIngredients();
+  const { width } = useWindowDimensions();
+
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [queryMode, setQueryMode] = useState<QueryMode>('all');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedConfection, setSelectedConfection] = useState<ConfectionType | null>(null);
+  const [selectedConfection, setSelectedConfection] =
+    useState<ConfectionType | null>(null);
+  const numColumns = width >= 760 ? 2 : 1;
 
   const filteredIngredients = useMemo(() => {
-    let result = [...ingredients];
+    const queryResult = applyQueryMode(ingredients, queryMode);
 
-    // 2. handling of the 4 DIFFERENT QUERY MODES
-    if (queryMode === 'missing') {
-      result = getMissingDataItems(result);
-    } else if (queryMode === 'recent_added') {
-      result = getRecentlyAdded(result, 5);
-    } else if (queryMode === 'recently_bought') {
-      result = filterRecentIngredients(result);
-    } else if (queryMode === 'check_ripeness') {
-      result = filterRipenessDue(result);
-    }
+    return filterIngredients(
+      queryResult,
+      searchTerm,
+      selectedLocation,
+      selectedCategory,
+      selectedConfection
+    );
+  }, [
+    ingredients,
+    queryMode,
+    searchTerm,
+    selectedLocation,
+    selectedCategory,
+    selectedConfection,
+  ]);
 
-    return filterIngredients(result, searchTerm, selectedLocation, selectedCategory, selectedConfection);
-  }, [ingredients, queryMode, searchTerm, selectedLocation, selectedCategory, selectedConfection]);
+  const clearFilters = (): void => {
+    setSearchTerm('');
+    setQueryMode('all');
+    setSelectedLocation(null);
+    setSelectedCategory(null);
+    setSelectedConfection(null);
+  };
 
-  const handlePress = (ingredient: Ingredient): void => {
+  const openIngredient = (ingredient: Ingredient): void => {
     navigation.navigate('EditIngredient', { ingredient });
   };
 
   return (
     <View style={styles.flex1}>
       <Header />
-      <ScrollView
-        style={styles.flex1}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        
-        <TextInput
-          style={styles.input}
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          placeholder="Search for ingredients"
-          placeholderTextColor={COLORS.placeholder}
-        />
 
-        <View style={styles.queryButtonRow}>
-          <TouchableOpacity
-            style={styles.clearButton}
-            onPress={() => {
-              setSearchTerm('');
-              setQueryMode('all');
-              setSelectedLocation(null);
-              setSelectedCategory(null);
-              setSelectedConfection(null);
-            }}
-          >
-            
-          <Text style={styles.clearButtonText}>Clear</Text>
-          </TouchableOpacity>
+      <IngredientList
+        ingredients={filteredIngredients}
+        onPress={openIngredient}
+        numColumns={numColumns}
+        header={
+          <>
+            <TextInput
+              style={styles.input}
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              placeholder="Search for ingredients"
+              placeholderTextColor={COLORS.placeholder}
+            />
 
-          {QUERY_OPTIONS.map((option) => (
-            <TouchableOpacity
-              key={option.value}
-              style={[styles.chip, queryMode === option.value && styles.chipSelected]}
-              onPress={() => setQueryMode(option.value as QueryMode)}
-            >
-              <Text style={queryMode === option.value ? styles.chipTextSelected : styles.chipText}>
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+            <View style={styles.queryButtonRow}>
+              <TouchableOpacity style={styles.clearButton} onPress={clearFilters}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
 
-        <Text style={styles.label}>Filter by location</Text>
-        <ChipSelector options={LOCATIONS} selectedValue={selectedLocation} onSelect={(value) => setSelectedLocation(value as Location | null)} />
+              {QUERY_OPTIONS.map((option) => {
+                const selected = queryMode === option.value;
 
-        <Text style={styles.label}>Filter by category</Text>
-        <ChipSelector options={CATEGORIES} selectedValue={selectedCategory} onSelect={(value) => setSelectedCategory(value as Category | null)} />
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.chip, selected && styles.chipSelected]}
+                    onPress={() => setQueryMode(option.value)}
+                  >
+                    <Text
+                      style={selected ? styles.chipTextSelected : styles.chipText}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-        <Text style={styles.label}>Filter by confection</Text>
-        <ChipSelector options={CONFECTIONS} selectedValue={selectedConfection} onSelect={(value) => setSelectedConfection(value as ConfectionType | null)} />
+            <Text style={styles.label}>Filter by location</Text>
+            <ChipSelector
+              options={LOCATIONS}
+              selectedValue={selectedLocation}
+              onSelect={setSelectedLocation}
+            />
 
-        <Text style={styles.label}>My items</Text>
+            <Text style={styles.label}>Filter by category</Text>
+            <ChipSelector
+              options={CATEGORIES}
+              selectedValue={selectedCategory}
+              onSelect={setSelectedCategory}
+            />
 
-        <IngredientList ingredients={filteredIngredients} onPress={handlePress} />
-      </ScrollView>
+            <Text style={styles.label}>Filter by confection</Text>
+            <ChipSelector
+              options={CONFECTIONS}
+              selectedValue={selectedConfection}
+              onSelect={setSelectedConfection}
+            />
+
+            <Text style={styles.label}>My items</Text>
+          </>
+        }
+      />
     </View>
   );
 };

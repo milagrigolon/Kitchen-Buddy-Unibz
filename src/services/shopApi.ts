@@ -1,94 +1,104 @@
-import { DEFAULT_SHOPS } from '../constants/options';
-import { Shop } from '../types';
+import { Shop, ShopType } from '../types';
 
-const OSM_QUERY = `
-  [out:json][timeout:25];
-  (
-    node["shop"~"^(supermarket|greengrocer|butcher|fishmonger|general)$"](around:2000,{{lat}},{{lng}});
-    way["shop"~"^(supermarket|greengrocer|butcher|fishmonger|general)$"](around:2000,{{lat}},{{lng}});
-  );
-  out center;
-`;
+const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const SEARCH_RADIUS_METERS = 500;
 
-const typeFromShopTag = (shopTag?: string): Shop['type'] => {
-  if (!shopTag) {
+type OverpassElement = {
+  id: number;
+  lat?: number;
+  lon?: number;
+  center?: {
+    lat: number;
+    lon: number;
+  };
+  tags?: {
+    name?: string;
+    shop?: string;
+  };
+};
+
+type OverpassResponse = {
+  elements?: OverpassElement[];
+};
+
+const shopTypeFromTag = (shopTag?: string): ShopType | null => {
+  if (shopTag === 'butcher') {
+    return 'butcher';
+  }
+
+  if (shopTag === 'seafood' || shopTag === 'fishmonger') {
+    return 'fishmonger';
+  }
+
+  if (
+    shopTag === 'supermarket' ||
+    shopTag === 'convenience' ||
+    shopTag === 'greengrocer'
+  ) {
     return 'general';
   }
 
-  const normalized = shopTag.toLowerCase();
-  if (normalized.includes('fish') || normalized.includes('seafood')) {
-    return 'fishmonger';
-  }
-  if (normalized.includes('butcher') || normalized.includes('meat')) {
-    return 'butcher';
-  }
-  return 'general';
+  return null;
 };
 
-const buildNearestShopFromList = (
-  latitude: number,
-  longitude: number,
-  shops: Shop[],
-  maxDistanceMeters: number
-): Shop | null => {
-  let nearest: Shop | null = null;
-
-  for (const shop of shops) {
-    const distanceInMeters = Math.sqrt(
-      Math.pow(latitude - shop.latitude, 2) + Math.pow(longitude - shop.longitude, 2)
-    ) * 111_000;
-
-    if (distanceInMeters <= maxDistanceMeters && (!nearest || distanceInMeters < nearest.radiusMeters)) {
-      nearest = shop;
-    }
-  }
-
-  return nearest;
+const overpassQuery = (latitude: number, longitude: number): string => {
+  return `
+    [out:json][timeout:8];
+    (
+      node["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer"]
+        (around:${SEARCH_RADIUS_METERS},${latitude},${longitude});
+      way["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer"]
+        (around:${SEARCH_RADIUS_METERS},${latitude},${longitude});
+    );
+    out center;
+  `;
 };
 
-export const findNearbyShopByCoordinates = async (
+const elementToShop = (element: OverpassElement): Shop | null => {
+  const shopType = shopTypeFromTag(element.tags?.shop);
+
+  if (!shopType) {
+    return null;
+  }
+
+  const latitude = element.lat ?? element.center?.lat;
+  const longitude = element.lon ?? element.center?.lon;
+
+  if (latitude === undefined || longitude === undefined) {
+    return null;
+  }
+
+  return {
+    id: `osm-${element.id}`,
+    name: element.tags?.name ?? 'Nearby Store',
+    type: shopType,
+    latitude,
+    longitude,
+    radiusMeters: SEARCH_RADIUS_METERS,
+  };
+};
+
+export const fetchNearbyShops = async (
   latitude: number,
-  longitude: number,
-  shops: Shop[] = DEFAULT_SHOPS,
-  maxDistanceMeters = 200
-): Promise<Shop | null> => {
-  const localFallback = buildNearestShopFromList(latitude, longitude, shops, maxDistanceMeters);
-  if (localFallback) {
-    return localFallback;
+  longitude: number
+): Promise<Shop[]> => {
+  const body = overpassQuery(latitude, longitude);
+
+  const response = await fetch(OVERPASS_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `data=${encodeURIComponent(body)}`,
+  });
+
+  if (!response.ok) {
+    return [];
   }
 
-  try {
-    const query = OSM_QUERY.replace('{{lat}}', latitude.toString()).replace('{{lng}}', longitude.toString());
-    const response = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-      body: `data=${encodeURIComponent(query)}`,
-    });
+  const data = (await response.json()) as OverpassResponse;
 
-    if (!response.ok) {
-      return localFallback;
-    }
-
-    const data = await response.json();
-    const element = data?.elements?.find((item: any) => item?.tags?.shop)?.tags ?? null;
-
-    if (!element) {
-      return localFallback;
-    }
-
-    const tagType = element.shop ?? 'general';
-    const shopName = element.name ?? 'Nearby shop';
-
-    return {
-      id: `osm-${Date.now()}`,
-      name: shopName,
-      type: typeFromShopTag(tagType),
-      latitude,
-      longitude,
-      radiusMeters: maxDistanceMeters,
-    };
-  } catch (error) {
-    console.warn('Fallback shop lookup used instead of Overpass result.', error);
-    return localFallback;
-  }
+  return (data.elements ?? [])
+    .map(elementToShop)
+    .filter((shop): shop is Shop => shop !== null);
 };

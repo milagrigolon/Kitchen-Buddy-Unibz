@@ -1,85 +1,98 @@
-// Small reusable selector for chip-style values such as category, location, and confection.
-// Turns a list of options into a compact tappable control
+// Reusable selector used for category, location, confection and similar choices.
 
 import React from 'react';
-import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, styles } from '../theme/styles';
 
 interface Option {
     label: string;
     value: string;
     icon?: string;
-    iconFamily?: 'material' | 'fontawesome' | 'ionicons'; // tells where to get the icon
+    iconFamily?: 'material' | 'fontawesome' | 'ionicons';
 }
 
-interface ChipSelectorProps {
+interface ChipSelectorProps<T extends string> {
     options: readonly Option[] | Option[];
-    selectedValue: string | null | undefined;
-    onSelect: (value: any) => void;
+    selectedValue: T | null | undefined;
+    onSelect: (value: T | null) => void;
 }
 
-// ChipSelector renders the option badges and toggles the current selection.
-// When a chip is already selected, pressing it clears the value.
-export const ChipSelector: React.FC<ChipSelectorProps> = ({
+const iconStyle = { marginRight: 6 };
+
+const renderOptionIcon = (option: Option, isSelected: boolean): React.ReactNode => {
+    if (!option.icon) {
+        return null;
+    }
+
+    const color = isSelected ? '#ffffff' : COLORS.primary;
+
+    if (option.iconFamily === 'fontawesome') {
+        return (
+            <FontAwesome6
+                name={option.icon}
+                size={16}
+                color={color}
+                style={iconStyle}
+            />
+        );
+    }
+
+    if (option.iconFamily === 'ionicons') {
+        return (
+            <Ionicons
+                name={option.icon as keyof typeof Ionicons.glyphMap}
+                size={16}
+                color={color}
+                style={iconStyle}
+            />
+        );
+    }
+
+    return (
+        <MaterialCommunityIcons
+            name={option.icon as keyof typeof MaterialCommunityIcons.glyphMap}
+            size={16}
+            color={color}
+            style={iconStyle}
+        />
+    );
+};
+
+export const ChipSelector = <T extends string>({
     options,
     selectedValue,
     onSelect,
-}) => {
-    // Select the correct icon component based on the iconFamily (3 different options)
-    const renderIcon = (option: Option, isSelected: boolean) => {
-        if (!option.icon) return null;
-
-        const color = isSelected ? '#ffffff' : COLORS.primary;
-        const size = 16;
-        const style = { marginRight: 6 };
-
-        if (option.iconFamily === 'fontawesome') {
-            return <FontAwesome6 name={option.icon} size={size} color={color} style={style} />;
+}: ChipSelectorProps<T>): React.ReactElement => {
+    const handleSelect = (option: Option): void => {
+        if (selectedValue === option.value) {
+            onSelect(null);
+            return;
         }
 
-        if (option.iconFamily === 'ionicons') {
-            return <Ionicons name={option.icon as any} size={size} color={color} style={style} />;
-        }
-
-        // Default: MaterialCommunityIcons
-        return <MaterialCommunityIcons name={option.icon as any} size={size} color={color} style={style} />;
+        onSelect(option.value as T);
     };
 
     return (
-        <View style={{ marginVertical: 4, minHeight: 40 }}>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[
-                    styles.chipGroup,
-                    { flexDirection: 'row', alignItems: 'center', gap: 8 }
-                ]}
-            >
-                {options.map((option) => {
-                    const isSelected = selectedValue === option.value;
+        <View style={styles.chipGroup}>
+            {options.map((option) => {
+                const isSelected = selectedValue === option.value;
 
-                    return (
-                        <TouchableOpacity
-                            key={option.value}
-                            style={[styles.chip, isSelected && styles.chipSelected]}
-                            onPress={() => {
-                                if (isSelected) {
-                                    onSelect(null);
-                                } else {
-                                    onSelect(option.value);
-                                }
-                            }}
-                            activeOpacity={0.7}
-                        >
-                            {renderIcon(option, isSelected)}
-                            <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                                {option.label}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
+                return (
+                    <TouchableOpacity
+                        key={option.value}
+                        style={[styles.chip, isSelected && styles.chipSelected]}
+                        onPress={() => handleSelect(option)}
+                        activeOpacity={0.7}
+                    >
+                        {renderOptionIcon(option, isSelected)}
+
+                        <Text style={isSelected ? styles.chipTextSelected : styles.chipText}>
+                            {option.label}
+                        </Text>
+                    </TouchableOpacity>
+                );
+            })}
         </View>
     );
 };

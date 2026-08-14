@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { TextInput, useWindowDimensions, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DaysThresholdControl } from '../components/DaysThresholdControl';
 import { Header } from '../components/Header';
@@ -22,8 +22,10 @@ type ExpiringScreenProps = NativeStackScreenProps<ExpiringStackParamList, 'Expir
  */
 export const ExpiringScreen: React.FC<ExpiringScreenProps> = ({ navigation }) => {
   const { ingredients } = useIngredients();
+  const { width } = useWindowDimensions();
   const [daysThreshold, setDaysThreshold] = useState<number>(7);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const numColumns = width >= 760 ? 2 : 1;
 
   const expiringIngredients = useMemo(() => {
     // 1. filter ingredients based on the expiring days
@@ -48,23 +50,28 @@ export const ExpiringScreen: React.FC<ExpiringScreenProps> = ({ navigation }) =>
   return (
     <View style={styles.flex1}>
       <Header />
-      <View style={styles.listContainer}>
 
-        {/* INPUT TERM for SEARCH */}
-        <TextInput
-          style={styles.input}
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          placeholder="Search for ingredients"
-          placeholderTextColor={COLORS.placeholder}
-        />
+      <IngredientList
+        ingredients={expiringIngredients}
+        onPress={handlePress}
+        numColumns={numColumns}
+        header={
+          <>
+            <TextInput
+              style={styles.input}
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              placeholder="Search for ingredients"
+              placeholderTextColor={COLORS.placeholder}
+            />
 
-        <DaysThresholdControl value={daysThreshold} onChange={setDaysThreshold} />
-        
-        
-      <IngredientList ingredients={expiringIngredients} onPress={handlePress} />
-      
-      </View>
+            <DaysThresholdControl
+              value={daysThreshold}
+              onChange={setDaysThreshold}
+            />
+          </>
+        }
+      />
     </View>
   );
 };

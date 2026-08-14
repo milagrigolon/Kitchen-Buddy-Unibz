@@ -62,7 +62,7 @@ export const AddScreen: React.FC = () => {
   return (
     <View style={styles.flex1}>
       <Header />
-      
+
       {/* SCAN BARCODE BUTTON*/}
       <View style={styles.addScreenScanBarcodeWrapper}>
         <TouchableOpacity

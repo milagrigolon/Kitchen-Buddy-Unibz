@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from '../theme/styles';
-import { DAY_OPTIONS } from '../constants/options';
 
 interface DaysThresholdControlProps {
   value: number;
   onChange: (days: number) => void;
 }
 
+const DAY_OPTIONS = [3, 7, 14, 30];
 
 /**
  * DaysThresholdControl chooses how soon the user wants to see ingredient entries.

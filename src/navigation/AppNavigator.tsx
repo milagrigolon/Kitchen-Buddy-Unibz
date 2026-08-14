@@ -62,18 +62,18 @@ export const AppNavigator: React.FC = () => {
 
   if (status === 'booting') {
     return (
-      <View style={[styles.flex1, { justifyContent: 'center', alignItems: 'center' }]}> 
+      <View style={[styles.flex1, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
-    /** TAB BASED NAVIGATION for the 4 main screens: 
-    * - Add
-    * - Expiring
-    * - My Items
-    * - Groceries
-     */
+  /** TAB BASED NAVIGATION for the 4 main screens: 
+  * - Add
+  * - Expiring
+  * - My Items
+  * - Groceries
+   */
 
   return (
     <NavigationContainer>
