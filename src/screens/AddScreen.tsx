@@ -9,7 +9,7 @@ import { IngredientForm } from '../components/IngredientForm';
 import { useIngredients } from '../context/AppContext';
 import { COLORS, styles } from '../theme/styles';
 import { Ingredient } from '../types';
-import { fetchProductByBarcode } from '../services/openFoodFacts';
+import { fetchProductByBarcode, BarcodeScanSuggestion } from '../services/openFoodFacts';
 
 /**
  * AddScreen provides the entry form for adding a new ingredient,
@@ -19,10 +19,12 @@ export const AddScreen: React.FC = () => {
   const { addIngredient } = useIngredients();
   const [isScannerVisible, setIsScannerVisible] = useState(false);
   const [prefillData, setPrefillData] = useState<Awaited<ReturnType<typeof fetchProductByBarcode>>>(null);
+  const [scannedSuggestion, setScannedSuggestion] = useState<BarcodeScanSuggestion | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSave = (ingredient: Ingredient): void => {
     addIngredient(ingredient);
+    setScannedSuggestion(null);
     setShowSuccess(true);
   };
 

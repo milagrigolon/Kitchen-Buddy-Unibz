@@ -8,15 +8,15 @@ The application supports the assignment's main workflow:
 
 - **Add & Manage Ingredients**: Track items by name, category, storage location (Pantry, Fridge, Freezer), confection type, and expiration date.
 - **Quantity & Consumption Tracking**: Define units, amounts, and track consumed quantities to monitor food usage.
-- **Freshness & Ripeness**: Monitor the ripeness status for fresh produce.
+- **Freshness & Ripeness**: Monitor the ripeness status for fresh ingredients. Every 3 days the ripeness is checked to prevent waste.
 - **Smart Expiration Rules**:
   - Marking an item as *Open* automatically shortens the window and moves it to *Expiring Soon*.
-  - Marking an item as *Frozen* extends shelf-life up to 6 months in the freezer view.
-- **Search, Filter & Sort**: Browse inventory using free-text search, chip selectors, missing data filters, recent entries, and quick edits.
+  - Marking a fresh item as *Frozen* extends shelf-life up to 6 months in the freezer view, when deactivated, the item will be assigned with the expiring date of the day you defrost it, removing it from the freezer location.
+- **Search, Filter & Sort**: Browse items using free-text search, chip selectors, missing data filters, recent entries, and quick edits for recently bought groceries.
 - **Expiring Soon Hub**: Dedicated query screen with an adjustable dynamic threshold window (e.g., 3, 5, 7 days).
 - **Automated Grocery Integration**:
-  - Automatically identifies low-stock items and suggests them for purchase.
-  - Bought items automatically migrate into *My Items* with smart predicted shelf-lives derived from past entries.
+  - Automatically identifies low-stock items and suggests them for purchase. Items with an amount consumed equal or more than 75% will be suggested as "Low stock suggestions".
+  - Bought items automatically migrate into *My Items* with predicted expiring date derived from past entries.
 - **Barcode Scanning & Fast Entry**: Quickly look up product details from barcodes using external product databases.
 - **Proximity & Shop Detection**: Alerts the user when near grocery store locations.
 

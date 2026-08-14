@@ -57,6 +57,14 @@ const getDaysToAdd = (exp: string): number => {
   return 0;
 };
 
+export const getTodayDateString = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const parseExpiration = (exp: string): { finalExp: string; timestamp: number | null } => {
   const cleanExp = exp.trim();
 
@@ -318,20 +326,28 @@ export const getQuantityStep = (unit: Unit): number => {
   return unit === 'kg' || unit === 'l' ? 0.25 : 1;
 };
 
+/**
+ * CHECK for LOW or EMPTY for GROCERIES SUGGESTIONS
+ * if the consumed amount is bigger or equal than 75%, then 
+ * it is suggested in the "Low stock suggestions"
+ */
 export const isLowOrEmpty = (ingredient: Ingredient): boolean => {
   const consumedPercentage = ingredient.consumedPercentage ?? 0;
+  
+  /* PREVIOUS LOGIC CHANGED - previously returned also for 0 pcs/kg/l
   const quantity = ingredient.quantity ?? 0;
   const unit = ingredient.unit ?? 'pcs';
-
   if (consumedPercentage >= 75) {
     return true;
   }
-
   if (quantity <= 0) {
     return true;
   }
+  return unit === 'pcs' ? quantity <= 1 : quantity <= 0.25; 
+  */
 
-  return unit === 'pcs' ? quantity <= 1 : quantity <= 0.25;
+  return consumedPercentage >= 75;
+
 };
 
 export const calculateSuggestedExpiry = (

@@ -22,7 +22,7 @@ import {
   RipenessStatus,
   Unit,
 } from '../types';
-import { buildIngredientFromDraft, isFreshConfection } from '../utils/helpers';
+import { buildIngredientFromDraft, isFreshConfection, getTodayDateString } from '../utils/helpers';
 import { ChipSelector } from './ChipSelector';
 import { EstimateDatePicker } from './EstimateDatePicker';
 import { QuantityControl } from './QuantityControl';
@@ -95,7 +95,7 @@ const emptyFormState = (): FormState => {
     expiration: '',
     quantity: 0,
     unit: 'pcs',
-    ripeness: 'green',
+    ripeness: null,
     isOpen: false,
     isFrozen: false,
     brand: '',
@@ -118,7 +118,7 @@ const formStateFromIngredient = (ingredient?: Ingredient | null): FormState => {
     expiration: ingredient.expirationDate,
     quantity: ingredient.quantity ?? 0,
     unit: ingredient.unit ?? 'pcs',
-    ripeness: ingredient.ripeness ?? 'green',
+    ripeness: ingredient.ripeness ?? null,
     isOpen: ingredient.isOpen ?? false,
     isFrozen: ingredient.isFrozen ?? false,
     brand: ingredient.brand ?? '',
@@ -157,8 +157,29 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case 'setOpen':
       return { ...state, isOpen: action.value };
 
-    case 'setFrozen':
-      return { ...state, isFrozen: action.value };
+    case 'setFrozen': {
+      const isNowFrozen = action.value;
+
+      // CHANGING FROZEN SWITCH (from true to false) - defrosting
+      if (!isNowFrozen) {
+        return {
+          ...state,
+          isFrozen: false,
+          // 1. exp date is TODAY because defrosted products do not last long and should be consumed quickly
+          expiration: getTodayDateString(),
+          // 2. removes location from freezer to NULL
+          location: state.location === 'freezer' ? null : state.location,
+        };
+      }
+
+      // ACTIVATING THE FROZEN STATE
+      return {
+        ...state,
+        isFrozen: true,
+        // optional --> put the location to freezer if not selected
+        location: state.location || 'freezer',
+      };
+    };
 
     case 'setConsumedPercentage':
       return { ...state, consumedPercentage: action.value };
@@ -229,36 +250,52 @@ const colorForRipeness = (index: number): string => {
 
 interface RipenessSelectorProps {
   value: RipenessStatus | null;
-  onChange: (value: RipenessStatus) => void;
+  onChange: (value: RipenessStatus | null) => void;
 }
 
 const RipenessSelector: React.FC<RipenessSelectorProps> = ({ value, onChange }) => {
   const selectedIndex = value
     ? RIPENESS_LEVELS.findIndex((option) => option.value === value)
-    : 0;
+    : -1;
 
-  const fillWidth =
-    `${((selectedIndex + 1) / RIPENESS_LEVELS.length) * 100}%` as `${number}%`;
+  // IF null or not found
+  const isSelected = selectedIndex >= 0;
+  const fillWidth = isSelected
+    ? (`${((selectedIndex + 1) / RIPENESS_LEVELS.length) * 100}%` as `${number}%`)
+    : '0%';
+
+  const handleSelect = (optionValue: RipenessStatus) => {
+    // if clicked again, deselect to NULL 
+    if (value === optionValue) {
+      onChange(null);
+    } else {
+      onChange(optionValue);
+    }
+}
 
   return (
     <>
-      <Text style={styles.label}>Ripeness</Text>
+      <Text style={styles.label}>Ripeness (Optional)</Text>
 
       <View style={styles.ripenessSection}>
         <View style={styles.ripenessTrackFrame}>
+          {/* grey tracker */}
           <View style={styles.ripenessTrack} />
-          <View pointerEvents="none" style={styles.ripenessTrackOverlay} />
 
-          <View
-            style={[
-              styles.ripenessFill,
-              {
-                width: fillWidth,
-                backgroundColor: colorForRipeness(selectedIndex),
-              },
-            ]}
-          />
+          {/* ACTIVE COLOURED BAR: only is ISSELECTED is active */}
+          {isSelected ? (
+            <View
+              style={[
+                styles.ripenessFill,
+                {
+                  width: fillWidth,
+                  backgroundColor: colorForRipeness(selectedIndex),
+                },
+              ]}
+            />
+          ) : null}
 
+          {/* Labels and Buttons */}
           <View style={styles.ripenessOptionsRow}>
             {RIPENESS_LEVELS.map((option, index) => {
               const selected = value === option.value;
@@ -267,8 +304,8 @@ const RipenessSelector: React.FC<RipenessSelectorProps> = ({ value, onChange }) 
               return (
                 <TouchableOpacity
                   key={option.value}
-                  activeOpacity={0.8}
-                  onPress={() => onChange(option.value)}
+                  activeOpacity={0.7}
+                  onPress={() => handleSelect(option.value)}
                   style={styles.ripenessOption}
                 >
                   <View
@@ -278,8 +315,8 @@ const RipenessSelector: React.FC<RipenessSelectorProps> = ({ value, onChange }) 
                         backgroundColor: selected ? color : '#f8fafc',
                         borderColor: selected ? color : '#cbd5e1',
                         shadowColor: selected ? color : 'transparent',
-                        shadowOpacity: selected ? 0.45 : 0,
-                        shadowRadius: selected ? 7 : 0,
+                        shadowOpacity: selected ? 0.4 : 0,
+                        shadowRadius: selected ? 6 : 0,
                         shadowOffset: { width: 0, height: 2 },
                       },
                     ]}
@@ -423,6 +460,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         </Text>
       </View>
 
+      {/* display RIPENESS option only for FRESH ITEMS*/}
       {isFreshConfection(form.confection) ? (
         <RipenessSelector
           value={form.ripeness}
@@ -449,19 +487,22 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <View style={styles.formSwitchGroup}>
         <SwitchRow
           icon="food-variant"
-          title="Open Item"
+          title="Open"
           description='Open ingredients are automatically included in "expiring soon".'
           value={form.isOpen}
           onChange={(value) => dispatch({ type: 'setOpen', value })}
-        />
+        /> 
 
-        <SwitchRow
+        {/* display FROZEN option only for FRESH ITEMS*/}
+        { isFreshConfection(form.confection) ? (
+          <SwitchRow
           icon="snowflake"
-          title="Frozen Item"
+          title="Frozen"
           description="Frozen fresh ingredients are moved to freezer and can last up to 6 months."
           value={form.isFrozen}
           onChange={(value) => dispatch({ type: 'setFrozen', value })}
-        />
+        />  
+        ) : null}
       </View>
 
       <TouchableOpacity style={styles.mainButton} onPress={saveIngredient}>
