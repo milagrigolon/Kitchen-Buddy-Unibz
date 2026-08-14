@@ -9,6 +9,12 @@ import { DEFAULT_SHOPS, MAX_DISTANCE_METERS } from '../constants/options';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { GroceryItem, Ingredient, Shop } from '../types';
 import { calculateSuggestedExpiry } from '../utils/helpers';
+import { findNearbyShopByCoordinates } from '../services/shopApi';
+
+const normalizeItemName = (value: string): string => value.trim().toLowerCase();
+
+const isInGroceryList = (name: string, groceries: GroceryItem[]): boolean =>
+  groceries.some((item) => normalizeItemName(item.name) === normalizeItemName(name));
 
 interface AppContextType {
   ingredients: Ingredient[];
@@ -57,17 +63,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const currentPosition = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
         const { latitude, longitude } = currentPosition.coords;
 
-        const nearestShop = DEFAULT_SHOPS.reduce<Shop | null>((closest, shop) => {
-          const distanceInMeters = Math.sqrt(
-            Math.pow(latitude - shop.latitude, 2) + Math.pow(longitude - shop.longitude, 2)
-          ) * 111_000;
-
-          if (distanceInMeters <= MAX_DISTANCE_METERS && (!closest || distanceInMeters < closest.radiusMeters)) {
-            return shop;
-          }
-
-          return closest;
-        }, null);
+        const nearestShop = await findNearbyShopByCoordinates(latitude, longitude, DEFAULT_SHOPS, MAX_DISTANCE_METERS);
 
         if (isMounted) {
           setNearbyShop(nearestShop);
@@ -112,9 +108,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addGroceryFromIngredient = (ingredient: Ingredient): void => {
+    const cleanedName = ingredient.name.trim();
+    if (!cleanedName || isInGroceryList(cleanedName, groceries)) {
+      return;
+    }
+
     const groceryItem: GroceryItem = {
       id: `grocery-${ingredient.id}-${Date.now()}`,
-      name: ingredient.name,
+      name: cleanedName,
       quantity: ingredient.quantity ?? 1,
       unit: ingredient.unit ?? 'pcs',
       createdAt: new Date().toISOString(),
@@ -127,7 +128,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const quickAddGrocery = (name: string): void => {
     const cleanName = name.trim();
-    if (!cleanName) {
+    if (!cleanName || isInGroceryList(cleanName, groceries)) {
       return;
     }
 
@@ -172,15 +173,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lowIngredients = useMemo(() => {
     return ingredients.filter((item) => {
       const isLowByPercentage = (item.consumedPercentage ?? 0) >= 75;
-      const isEmpty = (item.consumedPercentage ?? 0) >= 100;
-
-      // PREVIOUS USED CHECKS - not relevant for the purpose
-      // const isEmpty = (item.quantity ?? 0) === 0; 
-      // const isLowByUnits = item.unit=== 'pcs' && (item.quantity ?? 0) <= 1;
-
-      return isLowByPercentage; /* || isEmpty /*|| isLowByUnits; */
+      const alreadyInGroceries = isInGroceryList(item.name, groceries);
+      return isLowByPercentage && !alreadyInGroceries;
     });
-  }, [ingredients]);
+  }, [ingredients, groceries]);
 
   const value: AppContextType = {
     ingredients,

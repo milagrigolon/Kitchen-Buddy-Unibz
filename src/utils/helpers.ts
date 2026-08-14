@@ -112,7 +112,7 @@ export const buildIngredientFromDraft = ({
   createdAt,
   quantity,
   unit,
-  consumedPercentage = 0, // ADDED: destructured with a fallback default of 0
+  consumedPercentage = 0,
   ripeness,
   isOpen,
   isFrozen,
@@ -121,29 +121,31 @@ export const buildIngredientFromDraft = ({
   imageUrl,
 }: IngredientDraftInput): Ingredient => {
   const { finalExp, timestamp } = parseExpiration(expiration);
-
-  // optional FROZEN handling: if frozen, moves the location to 'freezer' 
-  // and calculates the expiring date to be in 6 months
-  // const frozenData = applyFrozenRules(isFrozen, location, finalExp, timestamp);
+  const nextLocation = isFrozen ? 'freezer' : location;
+  const frozenExp = isFrozen
+    ? applyFrozenRules(true, location, finalExp).finalExp ?? finalExp ?? ''
+    : finalExp ?? '';
+  const lastRipenessCheckAt = confectionType === 'fresh' ? new Date().toISOString() : null;
 
   return {
     id,
     name: name.trim(),
     category,
-    location,
+    location: nextLocation,
     confectionType,
-    expirationDate: finalExp,
-    expirationTimestamp: timestamp,
+    expirationDate: frozenExp,
+    expirationTimestamp: isFrozen ? parseExpiration(frozenExp).timestamp : timestamp,
     createdAt,
     quantity,
     unit,
-    consumedPercentage, // ADDED: passed to the returned Ingredient object
+    consumedPercentage,
     ripeness,
     isOpen,
     isFrozen,
     barcode,
     brand,
     imageUrl,
+    lastRipenessCheckAt,
   };
 };
 /**
@@ -173,9 +175,12 @@ export const filterExpiringWithin = (
   now = Date.now()
 ): Ingredient[] => {
   return ingredients.filter((ingredient) => {
-    // if the ingredient is open, immediately include it in "Expiring Soon"
     if (ingredient.isOpen) {
       return true;
+    }
+
+    if (ingredient.isFrozen) {
+      return false;
     }
 
     const timestamp = ingredient.expirationTimestamp ?? parseExpiration(ingredient.expirationDate || '').timestamp;
@@ -183,6 +188,25 @@ export const filterExpiringWithin = (
 
     return daysUntil !== null && daysUntil >= 0 && daysUntil <= days;
   });
+};
+
+export const isRipenessDue = (
+  ingredient: Ingredient,
+  now = Date.now(),
+  intervalDays = 3
+): boolean => {
+  if (!ingredient || ingredient.confectionType !== 'fresh') {
+    return false;
+  }
+
+  const lastCheckedAt = ingredient.lastRipenessCheckAt ? new Date(ingredient.lastRipenessCheckAt).getTime() : 0;
+  const expiryWindow = intervalDays * MS_PER_DAY;
+
+  return !ingredient.lastRipenessCheckAt || now - lastCheckedAt >= expiryWindow;
+};
+
+export const filterRipenessDue = (ingredients: Ingredient[], now = Date.now()): Ingredient[] => {
+  return ingredients.filter((ingredient) => isRipenessDue(ingredient, now));
 };
 
 /**

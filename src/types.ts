@@ -5,8 +5,8 @@ export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
-export type ShopType = 'general' | 'butcher';
-export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought';
+export type ShopType = 'general' | 'butcher' | 'fishmonger';
+export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'check_ripeness';
 
 export type Ingredient = {
   id: string;

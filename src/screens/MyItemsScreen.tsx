@@ -8,9 +8,21 @@ import { useIngredients } from '../context/AppContext';
 import { CATEGORIES, CONFECTIONS, LOCATIONS } from '../constants/options';
 import { COLORS, styles } from '../theme/styles';
 import { Category, ConfectionType, Ingredient, Location, QueryMode } from '../types';
-import { filterIngredients, getMissingDataItems, getRecentlyAdded, filterRecentIngredients } from '../utils/helpers';
+import {
+  filterIngredients,
+  getMissingDataItems,
+  getRecentlyAdded,
+  filterRecentIngredients,
+  filterRipenessDue,
+} from '../utils/helpers';
 
-
+const QUERY_OPTIONS: Array<{ label: string; value: QueryMode }> = [
+  { label: 'All', value: 'all' },
+  { label: 'Missing data', value: 'missing' },
+  { label: 'Recent', value: 'recent_added' },
+  { label: 'Recently Bought', value: 'recently_bought' },
+  { label: 'Check Ripeness', value: 'check_ripeness' },
+];
 
 type MyItemsStackParamList = {
   MyItemsHome: undefined;
@@ -38,9 +50,11 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
     if (queryMode === 'missing') {
       result = getMissingDataItems(result);
     } else if (queryMode === 'recent_added') {
-      result = getRecentlyAdded(result, 5); // 5 last added items
+      result = getRecentlyAdded(result, 5);
     } else if (queryMode === 'recently_bought') {
-      result = filterRecentIngredients(result); // isRecent: true
+      result = filterRecentIngredients(result);
+    } else if (queryMode === 'check_ripeness') {
+      result = filterRipenessDue(result);
     }
 
     return filterIngredients(result, searchTerm, selectedLocation, selectedCategory, selectedConfection);
@@ -82,12 +96,7 @@ export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
           <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
 
-          {[
-            { label: 'All', value: 'all' },
-            { label: 'Missing data', value: 'missing' },
-            { label: 'Recent', value: 'recent_added' },
-            { label: 'Recently Bought', value: 'recently_bought' },
-          ].map((option) => (
+          {QUERY_OPTIONS.map((option) => (
             <TouchableOpacity
               key={option.value}
               style={[styles.chip, queryMode === option.value && styles.chipSelected]}

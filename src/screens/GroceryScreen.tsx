@@ -22,6 +22,11 @@ export const GroceryScreen: React.FC = () => {
     [groceries]
   );
 
+  const visibleLowIngredients = useMemo(
+    () => lowIngredients.filter((ingredient) => !groceries.some((item) => item.name.toLowerCase() === ingredient.name.toLowerCase())),
+    [groceries, lowIngredients]
+  );
+
   const handleQuickAdd = (): void => {
     quickAddGrocery(quickText);
     setQuickText('');
@@ -62,10 +67,10 @@ export const GroceryScreen: React.FC = () => {
         </View>
 
         <Text style={styles.label}>Low-stock suggestions</Text>
-        {lowIngredients.length === 0 ? (
+        {visibleLowIngredients.length === 0 ? (
           <Text style={styles.emptyText}>No low-stock suggestions right now.</Text>
         ) : (
-          lowIngredients.map((ingredient) => (
+          visibleLowIngredients.map((ingredient) => (
             <TouchableOpacity key={ingredient.id} style={styles.card} onPress={() => quickAddGrocery(ingredient.name)}>
               <Text style={styles.cardTitle}>{ingredient.name}</Text>
               <Text style={styles.cardLoc}>Add to groceries</Text>
