@@ -141,6 +141,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     usePersistentState<Ingredient[]>('kitchen-buddy-ingredients', []);
   const [groceries, setGroceries] =
     usePersistentState<GroceryItem[]>('kitchen-buddy-groceries', []);
+  // This state is local to the app behavior but persisted so that a handled low-stock
+  // suggestion does not reappear after the user buys or removes the grocery item.
+  const [handledLowStockIngredientIds, setHandledLowStockIngredientIds] =
+    usePersistentState<string[]>('kitchen-buddy-handled-low-stock', []);
   const [nearbyShop, setNearbyShop] = useState<Shop | null>(null);
   const [status, setStatus] = useState<'booting' | 'ready'>('booting');
 
@@ -226,6 +230,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // added from ingredients or typed manually. The duplicate check therefore uses the current
   // grocery snapshot to avoid race conditions during rapid taps.
   const addGroceryFromIngredient = (ingredient: Ingredient): void => {
+    setHandledLowStockIngredientIds((current) => {
+      if (current.includes(ingredient.id)) {
+        return current;
+      }
+
+      return [...current, ingredient.id];
+    });
+
     setGroceries((current) => {
       if (hasEquivalentGroceryEntry(current, ingredient.name, ingredient.id)) {
         return current;
@@ -268,6 +280,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return currentGroceries;
       }
 
+      if (groceryItem.sourceIngredientId) {
+        setHandledLowStockIngredientIds((current) => {
+          if (current.includes(groceryItem.sourceIngredientId!)) {
+            return current;
+          }
+
+          return [...current, groceryItem.sourceIngredientId!];
+        });
+      }
+
       setIngredients((currentIngredients) => {
         const boughtIngredient = buildBoughtIngredient(groceryItem, currentIngredients);
 
@@ -285,6 +307,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Removing the grocery entry is enough to mark it as no longer pending.
     // We intentionally do not store a separate boolean on the ingredient; the list itself is
     // the source of truth for whether an ingredient is currently requested in groceries.
+    const groceryItem = groceries.find((item) => item.id === id);
+
+    if (groceryItem?.sourceIngredientId) {
+      setHandledLowStockIngredientIds((current) => {
+        if (current.includes(groceryItem.sourceIngredientId!)) {
+          return current;
+        }
+
+        return [...current, groceryItem.sourceIngredientId!];
+      });
+    }
+
     removeGroceryItem(id);
   };
 
@@ -301,12 +335,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .filter((id): id is string => id !== null)
     );
 
+    const handledIds = new Set(handledLowStockIngredientIds);
+
     return ingredients.filter((ingredient) => {
       const alreadyListedById = listedIngredientIds.has(ingredient.id);
+      const alreadyHandled = handledIds.has(ingredient.id);
 
-      return !alreadyListedById && isLowOrEmpty(ingredient);
+      return !alreadyListedById && !alreadyHandled && isLowOrEmpty(ingredient);
     });
-  }, [ingredients, groceries]);
+  }, [ingredients, groceries, handledLowStockIngredientIds]);
 
   const value: AppContextType = {
     ingredients,
