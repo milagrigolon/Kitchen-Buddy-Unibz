@@ -84,7 +84,7 @@ type FormAction =
   | { type: 'prefill'; value: BarcodeScanSuggestion }
   | { type: 'reset' };
 
-const ripenessColors = ['#22c55e', '#a3e635', '#fbbf24', '#f97316', '#dc2626'];
+const ripenessColors = ['#22c55e', '#a3e635', '#fbbf24', '#dc2626'];
 
 const emptyFormState = (): FormState => {
   return {
