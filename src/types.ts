@@ -29,7 +29,7 @@ export type Ingredient = {
   brand?: string | null;
   imageUrl?: string | null;
   isRecent?: boolean;
-  isInGroceryList?: boolean;
+  //isInGroceryList?: boolean;
 };
 
 export type GroceryItem = {

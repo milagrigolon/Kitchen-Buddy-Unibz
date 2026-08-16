@@ -1,4 +1,11 @@
 // Global state for ingredients, groceries and nearby-shop detection.
+//
+// Architectural intent:
+// - `AppProvider` owns the app-wide state and exposes it through typed hooks.
+// - persisted values (`ingredients`, `groceries`) live in AsyncStorage through
+//   `usePersistentState`, while local UI state (`nearbyShop`, `status`) stays in React state.
+// - derived values such as `lowIngredients` are computed with `useMemo` from the real source
+//   of truth instead of being stored separately and then forgotten.
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
@@ -84,6 +91,25 @@ const nearestShopFrom = (
   return nearbyShops[0]?.shop ?? null;
 };
 
+const normalizeItemName = (name: string): string => name.trim().toLowerCase();
+
+const hasEquivalentGroceryEntry = (
+  current: GroceryItem[],
+  targetName: string,
+  sourceIngredientId?: string | null
+): boolean => {
+  const normalizedName = normalizeItemName(targetName);
+
+  return current.some((item) => {
+    const sameSourceIngredient =
+      sourceIngredientId != null && item.sourceIngredientId === sourceIngredientId;
+    const sameName =
+      item.name && normalizeItemName(item.name) === normalizedName;
+
+    return sameSourceIngredient || sameName;
+  });
+};
+
 const groceryFromIngredient = (ingredient: Ingredient): GroceryItem => {
   return {
     id: `grocery-${ingredient.id}-${Date.now()}`,
@@ -163,6 +189,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  // Persisted ingredient state: these updates are intentionally written through the
+  // functional `setState` form so they are based on the latest snapshot, not a stale closure.
   const addIngredient = (ingredient: Ingredient): void => {
     setIngredients((current) => [ingredient, ...current]);
   };
@@ -194,37 +222,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const markIngredientAsListed = (ingredientId: string): void => {
-    setIngredients((current) =>
-      current.map((ingredient) =>
-        ingredient.id === ingredientId
-          ? { ...ingredient, isInGroceryList: true }
-          : ingredient
-      )
-    );
-  };
-
-  const unmarkIngredientAsListed = (ingredientId: string): void => {
-    setIngredients((current) =>
-      current.map((ingredient) =>
-        ingredient.id === ingredientId
-          ? { ...ingredient, isInGroceryList: false }
-          : ingredient
-      )
-    );
-  };
-
+  // Grocery items are also persisted, but they are treated as a derived list that can be
+  // added from ingredients or typed manually. The duplicate check therefore uses the current
+  // grocery snapshot to avoid race conditions during rapid taps.
   const addGroceryFromIngredient = (ingredient: Ingredient): void => {
-    const alreadyListed = groceries.some(
-      (item) => item.sourceIngredientId === ingredient.id
-    );
+    setGroceries((current) => {
+      if (hasEquivalentGroceryEntry(current, ingredient.name, ingredient.id)) {
+        return current;
+      }
 
-    if (ingredient.isInGroceryList || alreadyListed) {
-      return;
-    }
-
-    setGroceries((current) => [groceryFromIngredient(ingredient), ...current]);
-    markIngredientAsListed(ingredient.id);
+      return [groceryFromIngredient(ingredient), ...current];
+    });
   };
 
   const quickAddGrocery = (name: string): void => {
@@ -234,7 +242,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    setGroceries((current) => [quickGroceryItem(cleanName), ...current]);
+    setGroceries((current) => {
+      if (hasEquivalentGroceryEntry(current, cleanName)) {
+        return current;
+      }
+
+      return [quickGroceryItem(cleanName), ...current];
+    });
   };
 
   const removeGroceryItem = (id: string): void => {
@@ -243,40 +257,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  // `buyGrocery` is the most sensitive operation because it updates both the grocery list and
+  // the ingredient list at once. The state update must be based on the current snapshots to avoid
+  // stale-closure problems when the user taps quickly or the list changes between renders.
   const buyGrocery = (id: string): void => {
-    const groceryItem = groceries.find((item) => item.id === id);
+    setGroceries((currentGroceries) => {
+      const groceryItem = currentGroceries.find((item) => item.id === id);
 
-    if (!groceryItem) {
-      return;
-    }
+      if (!groceryItem) {
+        return currentGroceries;
+      }
 
-    const boughtIngredient = buildBoughtIngredient(groceryItem, ingredients);
+      setIngredients((currentIngredients) => {
+        const boughtIngredient = buildBoughtIngredient(groceryItem, currentIngredients);
 
-    addIngredient({
-      ...boughtIngredient,
-      isRecent: true,
+        return [{
+          ...boughtIngredient,
+          isRecent: true,
+        }, ...currentIngredients];
+      });
+
+      return currentGroceries.filter((item) => item.id !== id);
     });
-
-    removeGroceryItem(id);
   };
 
   const deleteGrocery = (id: string): void => {
-    const groceryItem = groceries.find((item) => item.id === id);
-
-    if (groceryItem?.sourceIngredientId) {
-      unmarkIngredientAsListed(groceryItem.sourceIngredientId);
-    }
-
+    // Removing the grocery entry is enough to mark it as no longer pending.
+    // We intentionally do not store a separate boolean on the ingredient; the list itself is
+    // the source of truth for whether an ingredient is currently requested in groceries.
     removeGroceryItem(id);
   };
 
+  // This is intentionally a derived selector, not separate state.
+  // Keeping it derived prevents stale values and makes the app consistent with the persisted list.
   const activeIngredients = useMemo(() => ingredients, [ingredients]);
 
+  // `lowIngredients` is a derived list from the persisted ingredients and groceries arrays.
+  // If an ingredient is already in the grocery list, it is removed from the suggestions.
   const lowIngredients = useMemo(() => {
+    const listedIngredientIds = new Set(
+      groceries
+        .map((item) => item.sourceIngredientId)
+        .filter((id): id is string => id !== null)
+    );
+
     return ingredients.filter((ingredient) => {
-      return !ingredient.isInGroceryList && isLowOrEmpty(ingredient);
+      const alreadyListedById = listedIngredientIds.has(ingredient.id);
+
+      return !alreadyListedById && isLowOrEmpty(ingredient);
     });
-  }, [ingredients]);
+  }, [ingredients, groceries]);
 
   const value: AppContextType = {
     ingredients,

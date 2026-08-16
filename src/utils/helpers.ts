@@ -225,7 +225,10 @@ export const buildIngredientFromDraft = ({
     brand: brand?.trim() || null,
     imageUrl,
     isRecent: previousIngredient?.isRecent ?? false,
-    isInGroceryList: previousIngredient?.isInGroceryList ?? false,
+    // isInGroceryList: previousIngredient?.isInGroceryList ?? false,
+    // This field is being deleted entirely — whether an ingredient is
+    // "in the grocery list" is now derived on the fly from `groceries`
+    // (see lowIngredients in AppContext.tsx), not stored on the ingredient.
   };
 };
 
@@ -412,13 +415,26 @@ export const buildBoughtIngredient = (
 };
 
 const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
-  if (shop.type === 'general') {
-    return true;
-  }
-
   const text = item.name.toLowerCase();
-  const meatNames = /meat|beef|chicken|pork|sausage|steak|carne|pollo|salsiccia/;
+  const dairyNames = /milk|yogurt|cheese|butter|cream|latte|yogurt|formaggio|burro|panna/;
+  const pantryNames = /pasta|rice|flour|bread|cereal|tomato|oil|salt|sugar|pepper|coffee|pasta|riso|farina|pane|cereali|pomodoro|olio|sale|zucchero|pepe|caff/;
+  const fruitNames = /apple|banana|orange|pear|grape|fruit|berries|apple|banana|arancia|pera|uva|frutta|fragole|mela/;
+  const vegetableNames = /vegetable|lettuce|spinach|tomato|carrot|pepper|onion|celery|cucumber|verdure|lattuga|spinaci|carota|peperone|cipolla|sedano|cetriolo|pomodoro/;
+  const meatNames = /meat|beef|chicken|pork|sausage|steak|carne|pollo|maiale|salsiccia|bistecca/;
   const fishNames = /fish|salmon|tuna|shrimp|seafood|pesce|salmone|tonno|gamberi/;
+
+  if (shop.type === 'general') {
+    return (
+      item.category === 'fruit' ||
+      item.category === 'vegetable' ||
+      item.category === 'dairy' ||
+      item.category === 'liquid' ||
+      dairyNames.test(text) ||
+      pantryNames.test(text) ||
+      fruitNames.test(text) ||
+      vegetableNames.test(text)
+    );
+  }
 
   if (shop.type === 'butcher') {
     return item.category === 'meat' || meatNames.test(text);
@@ -434,13 +450,20 @@ const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
 export const sortGroceriesForShop = (items: GroceryItem[], shop: Shop | null): GroceryItem[] => {
   const sortedByDate = [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-  if (!shop || shop.type === 'general') {
+  if (!shop) {
     return sortedByDate;
   }
 
-  return sortedByDate
-    .filter((item) => groceryFitsShop(item, shop) || !item.sourceIngredientId)
-    .sort((a, b) => Number(!groceryFitsShop(a, shop)) - Number(!groceryFitsShop(b, shop)));
+  return sortedByDate.sort((a, b) => {
+    const aPriority = groceryFitsShop(a, shop) ? 1 : 0;
+    const bPriority = groceryFitsShop(b, shop) ? 1 : 0;
+
+    if (aPriority !== bPriority) {
+      return bPriority - aPriority;
+    }
+
+    return b.createdAt.localeCompare(a.createdAt);
+  });
 };
 
 export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
@@ -456,5 +479,5 @@ export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
     return ['Fish', 'Salmon', 'Tuna'];
   }
 
-  return ['Milk', 'Pasta', 'Vegetables'];
+  return ['Milk', 'Pasta', 'Vegetables', 'Fruit', 'Bread'];
 };
