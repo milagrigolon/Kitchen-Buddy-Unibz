@@ -39,15 +39,15 @@ export const ExpiringList: React.FC<ExpiringListProps> = ({ ingredients }) => {
                         <TouchableOpacity
                             key={days}
                             style={[
-                                styles.dayButton,
-                                daysThreshold === days && styles.dayButtonActive,
+                                styles.specialButton,
+                                daysThreshold === days && styles.specialButtonActive,
                             ]}
                             onPress={() => setDaysThreshold(days)}
                         >
                             <Text
                                 style={[
-                                    styles.dayButtonText,
-                                    daysThreshold === days && styles.dayButtonTextActive,
+                                    styles.specialButtonText,
+                                    daysThreshold === days && styles.specialButtonTextActive,
                                 ]}
                             >
                                 {days} days

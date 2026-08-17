@@ -15,6 +15,9 @@ import { fetchNearbyShops } from '../services/shopApi';
 import { GroceryItem, Ingredient, Shop } from '../types';
 import { buildBoughtIngredient, isLowOrEmpty } from '../utils/helpers';
 
+// MOCK INGREDIENTS FOR TESTING
+import { MOCK_RIPENESS_TEST_INGREDIENTS } from '../constants/mockIngredients';
+
 interface AppContextType {
   ingredients: Ingredient[];
   groceries: GroceryItem[];
@@ -139,6 +142,16 @@ const quickGroceryItem = (name: string): GroceryItem => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [ingredients, setIngredients] =
     usePersistentState<Ingredient[]>('kitchen-buddy-ingredients', []);
+
+
+/* MOCK INGREDIENTS FOR TESTING
+const [ingredients, setIngredients] =
+    usePersistentState<Ingredient[]>(
+      'kitchen-buddy-ingredients-v100',
+      MOCK_RIPENESS_TEST_INGREDIENTS
+    );
+*/
+
   const [groceries, setGroceries] =
     usePersistentState<GroceryItem[]>('kitchen-buddy-groceries', []);
   // This state is local to the app behavior but persisted so that a handled low-stock
@@ -268,7 +281,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         return {
           ...ingredientToUpdate,
-          isRecent: false,
+          isRecentlyBought: false,
         };
       })
     );
@@ -355,7 +368,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         return [{
           ...boughtIngredient,
-          isRecent: true,
+          isRecentlyBought: true,
         }, ...currentIngredients];
       });
 

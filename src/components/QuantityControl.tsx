@@ -74,7 +74,7 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
   return (
     <View style={{ gap: 12 }}>
       {/* SECTION 1: UNIT METRIC SELECTION CHIPS */}
-      <View>
+      <View style = {styles.formFieldsDistance}>
         <Text style={styles.label}>Quantity Unit</Text>
         <View style={styles.queryButtonRow}>
           {UNIT_OPTIONS.map((option) => (
@@ -97,10 +97,10 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
         <Text style={styles.label}>
           Quantity Amount ({unit})
         </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={styles.quantityContainer}>
           {/* decrement Button */}
-          <TouchableOpacity style={styles.dayButton} onPress={handleDecrement}>
-            <Text style={styles.dayButtonText}>-</Text>
+          <TouchableOpacity style={styles.specialButton} onPress={handleDecrement}>
+            <Text style={styles.specialButtonText}>-</Text>
           </TouchableOpacity>
 
           {/* 
@@ -116,8 +116,8 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
           />
 
           {/* Increment Button */}
-          <TouchableOpacity style={styles.dayButton} onPress={handleIncrement}>
-            <Text style={styles.dayButtonText}>+</Text>
+          <TouchableOpacity style={styles.specialButton} onPress={handleIncrement}>
+            <Text style={styles.specialButtonText}>+</Text>
           </TouchableOpacity>
         </View>
       </View>

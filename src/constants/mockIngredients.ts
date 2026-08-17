@@ -1,0 +1,97 @@
+import { Ingredient } from '../types';
+
+export const MOCK_RIPENESS_TEST_INGREDIENTS: Ingredient[] = [
+  // CASE 1: BADGE MUST SHOW (Checked > 3 days ago)
+  {
+    id: 'test-ripeness-overdue',
+    name: 'Avocado (Overdue Check)',
+    category: 'fruit',
+    location: 'pantry',
+    confectionType: 'fresh',
+    ripeness: 'green',
+    lastRipenessCheckAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date().toISOString(),
+    expirationDate: '2026-08-25',
+    expirationTimestamp: new Date('2026-08-25').getTime(),
+    quantity: 2,
+    unit: 'pcs',
+    isOpen: false,
+    isFrozen: false,
+    consumedPercentage: 0,
+  },
+
+  // CASE 2: BADGE MUST SHOW (Never checked / null date)
+  {
+    id: 'test-ripeness-untracked',
+    name: 'Bananas (Never Checked)',
+    category: 'fruit',
+    location: 'pantry',
+    confectionType: 'fresh',
+    ripeness: 'ripe',
+    lastRipenessCheckAt: null,
+    createdAt: new Date().toISOString(),
+    expirationDate: '2026-08-22',
+    expirationTimestamp: new Date('2026-08-22').getTime(),
+    quantity: 4,
+    unit: 'pcs',
+    isOpen: false,
+    isFrozen: false,
+    consumedPercentage: 10,
+  },
+
+  // CASE 3: BADGE MUST NOT SHOW (Checked recently)
+  {
+    id: 'test-ripeness-recent',
+    name: 'Tomatoes (Up to Date)',
+    category: 'vegetable',
+    location: 'fridge',
+    confectionType: 'fresh',
+    ripeness: 'ripe',
+    lastRipenessCheckAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date().toISOString(),
+    expirationDate: '2026-08-24',
+    expirationTimestamp: new Date('2026-08-24').getTime(),
+    quantity: 1,
+    unit: 'kg',
+    isOpen: false,
+    isFrozen: false,
+    consumedPercentage: 20,
+  },
+
+  // CASE 4: BADGE MUST NOT SHOW (Canned item / no ripeness)
+  {
+    id: 'test-ripeness-canned',
+    name: 'Canned Beans',
+    category: null,
+    location: null,
+    confectionType: 'canned',
+    ripeness: null,
+    lastRipenessCheckAt: null,
+    createdAt: new Date().toISOString(),
+    expirationDate: '2027-01-15',
+    expirationTimestamp: new Date('2027-01-15').getTime(),
+    quantity: 1,
+    unit: 'pcs',
+    isOpen: false,
+    isFrozen: false,
+    consumedPercentage: 0,
+  },
+  // CORNER CASE: Needs Ripeness Check AND has Missing Data (no quantity/unit or expiry estimate)
+  {
+    id: 'test-ripeness-strawberries-both',
+    name: 'Strawberries (double badge)',
+    category: 'fruit',
+    location: 'fridge',
+    confectionType: 'fresh',
+    ripeness: 'ripe',
+    lastRipenessCheckAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date().toISOString(),
+    expirationDate: '',
+    expirationTimestamp: null,
+    quantity: 1,
+    unit: 'pcs',
+    isOpen: false,
+    isFrozen: false,
+    consumedPercentage: 0,
+ }
+];

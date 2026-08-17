@@ -275,7 +275,7 @@ const RipenessSelector: React.FC<RipenessSelectorProps> = ({ value, onChange }) 
 
   return (
     <>
-      <Text style={styles.label}>Ripeness (Optional)</Text>
+      <Text style={styles.label}>Ripeness</Text>
 
       <View style={styles.ripenessSection}>
         <View style={styles.ripenessTrackFrame}>
@@ -411,7 +411,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <FormInput
+      <FormInput 
         label="Name* (e.g. Lettuce)"
         value={form.name}
         onChange={setText('name')}
@@ -456,7 +456,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       <View style={styles.formHelperRow}>
         <Ionicons name="information-circle-outline" size={16} color="#64748b" />
         <Text style={styles.formHelperText}>
-          Fresh items have a Ripeness Status that is update automatically every 3 days. 
+          Fresh ingredients have a Ripeness Status that is checked automatically every 3 days. 
         </Text>
       </View>
 

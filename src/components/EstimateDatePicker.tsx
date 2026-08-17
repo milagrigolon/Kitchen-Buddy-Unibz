@@ -12,7 +12,7 @@ interface EstimateDatePickerProps {
  * exact expiration dates in DD/MM/YYYY format.
  */
 export const EstimateDatePicker: React.FC<EstimateDatePickerProps> = ({ value, onChange }) => (
-  <View>
+  <View style = {styles.formFieldsDistance}>
     <Text style={styles.label}>Expiration date or estimate (e.g. 3 days, 1 week, 1 month)</Text>
     <TextInput
       style={styles.input}

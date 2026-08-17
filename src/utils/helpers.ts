@@ -164,6 +164,28 @@ const applyFrozenRules = (
   };
 };
 
+const applyRipenessRules = (
+  confectionType: ConfectionType | null,
+  ripeness: RipenessStatus | null | undefined,
+  previousIngredient?: Ingredient | null
+): { savedRipeness: RipenessStatus | null; ripenessCheckedAt: string | null } => {
+  // Ripeness status is only applicable to fresh confectionery items
+  const savedRipeness = isFreshConfection(confectionType) ? ripeness ?? null : null;
+
+  // Clear tracking timestamp if no ripeness level is set or item is not fresh
+  if (!savedRipeness) {
+    return { savedRipeness: null, ripenessCheckedAt: null };
+  }
+  // Detect if the ripeness value actually changed during this edit
+  const hasRipenessChanged = savedRipeness !== (previousIngredient?.ripeness ?? null);
+  // Update check timestamp when ripeness changes; otherwise retain existing check date
+  const ripenessCheckedAt = hasRipenessChanged
+    ? new Date().toISOString()
+    : previousIngredient?.lastRipenessCheckAt ?? new Date().toISOString();
+
+  return { savedRipeness, ripenessCheckedAt };
+};
+
 export const isFreshConfection = (confection: ConfectionType | null | undefined): boolean => {
   return confection === 'fresh';
 };
@@ -188,12 +210,16 @@ export const buildIngredientFromDraft = ({
   previousIngredient,
 }: IngredientDraftInput): Ingredient => {
   const parsed = parseExpiration(expiration);
+
+  // OPEN STATUS
   const openData = applyOpenRules(
     isOpen,
     previousIngredient?.isOpen,
     parsed.finalExp,
     parsed.timestamp
   );
+
+  // FROZEN STATUS
   const dataBeforeFrozen = isFrozen ? parsed : openData;
   const frozenData = applyFrozenRules(
     isFrozen,
@@ -201,8 +227,13 @@ export const buildIngredientFromDraft = ({
     dataBeforeFrozen.finalExp,
     dataBeforeFrozen.timestamp
   );
-  const savedRipeness = isFreshConfection(confectionType) ? ripeness ?? null : null;
-  const ripenessCheckedAt = savedRipeness ? new Date().toISOString() : null;
+
+  // RIPENESS STATUS
+  const { savedRipeness, ripenessCheckedAt } = applyRipenessRules(
+    confectionType,
+    ripeness,
+    previousIngredient
+  );
 
   return {
     id,
@@ -224,11 +255,7 @@ export const buildIngredientFromDraft = ({
     barcode: barcode?.trim() || null,
     brand: brand?.trim() || null,
     imageUrl,
-    isRecent: previousIngredient?.isRecent ?? false,
-    // isInGroceryList: previousIngredient?.isInGroceryList ?? false,
-    // This field is being deleted entirely — whether an ingredient is
-    // "in the grocery list" is now derived on the fly from `groceries`
-    // (see lowIngredients in AppContext.tsx), not stored on the ingredient.
+    isRecentlyBought: previousIngredient?.isRecentlyBought ?? false,
   };
 };
 
@@ -277,16 +304,19 @@ export const filterExpiringWithin = (
   });
 };
 
-export const getMissingDataItems = (ingredients: Ingredient[]): Ingredient[] => {
-  return ingredients.filter(
-    (ingredient) =>
-      !ingredient.category ||
-      !ingredient.location ||
-      !ingredient.confectionType ||
-      !ingredient.expirationDate
+// QUERY: ingredients with missing data
+export const hasMissingDetails = (ingredient: Ingredient): boolean => {
+  return (
+    !ingredient.category ||
+    !ingredient.location ||
+    !ingredient.confectionType ||
+    !ingredient.expirationDate ||
+    ingredient.expirationDate.trim() === '' ||
+    (ingredient.confectionType === 'fresh' && !ingredient.ripeness)
   );
 };
 
+// QUERY: recently added ingredients (based on date of entry)
 export const getRecentlyAdded = (ingredients: Ingredient[], limit = 5): Ingredient[] => {
   const sorted = [...ingredients].sort((a, b) => {
     const dateA = new Date(a.createdAt || 0).getTime();
@@ -297,14 +327,12 @@ export const getRecentlyAdded = (ingredients: Ingredient[], limit = 5): Ingredie
   return limit ? sorted.slice(0, limit) : sorted;
 };
 
-export const filterRecentIngredients = (ingredients: Ingredient[]): Ingredient[] => {
-  return ingredients.filter((item) => item.isRecent === true);
+// QUERY: recently bought groceries
+export const filterRecentlyBoughtIngredients = (ingredients: Ingredient[]): Ingredient[] => {
+  return ingredients.filter((item) => item.isRecentlyBought === true);
 };
 
-export const filterNeedsRipenessCheck = (ingredients: Ingredient[], now = Date.now()): Ingredient[] => {
-  return ingredients.filter((ingredient) => needsRipenessCheck(ingredient, now));
-};
-
+// FILTER INGREDIENTS FUNCTION - can be used for every query mode
 export const filterIngredients = (
   ingredients: Ingredient[],
   search = '',
@@ -465,6 +493,7 @@ export const sortGroceriesForShop = (items: GroceryItem[], shop: Shop | null): G
     return b.createdAt.localeCompare(a.createdAt);
   });
 };
+
 
 export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
   if (!shop) {

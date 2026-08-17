@@ -1,4 +1,4 @@
-import { Category, ConfectionType, Location, RipenessStatus, Shop, Unit } from '../types';
+import { Category, ConfectionType, Location, RipenessStatus, Shop, Unit, QueryOption} from '../types';
 
 export type OptionItem<T extends string> = {
   label: string;
@@ -37,6 +37,7 @@ export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
   { label: 'Too Ripe', value: 'too ripe', icon: 'warning-sharp', iconFamily: 'ionicons' },
 ];
 
+// FOR TESTING
 export const DEFAULT_SHOPS: Shop[] = [
   {
     id: 'general-market',
@@ -62,6 +63,12 @@ export const DEFAULT_SHOPS: Shop[] = [
     longitude: 13.366100,
     radiusMeters: 140,
   },
+];
+
+export const QUERY_OPTIONS: QueryOption[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Recent', value: 'recent_added' },
+  { label: 'Recently Bought', value: 'recently_bought' },
 ];
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;

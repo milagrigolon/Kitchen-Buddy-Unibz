@@ -1,26 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ChipSelector } from '../components/ChipSelector';
 import { Header } from '../components/Header';
 import { IngredientList } from '../components/IngredientList';
-import { CATEGORIES, CONFECTIONS, LOCATIONS } from '../constants/options';
+import { CATEGORIES, CONFECTIONS, LOCATIONS, QUERY_OPTIONS } from '../constants/options';
 import { useIngredients } from '../context/AppContext';
 import { COLORS, styles } from '../theme/styles';
 import { Category, ConfectionType, Ingredient, Location, QueryMode } from '../types';
-import {
-  filterIngredients,
-  filterNeedsRipenessCheck,
-  filterRecentIngredients,
-  getMissingDataItems,
-  getRecentlyAdded,
-} from '../utils/helpers';
+import { filterIngredients, filterRecentlyBoughtIngredients, getRecentlyAdded } from '../utils/helpers';
 
 type MyItemsStackParamList = {
   MyItemsHome: undefined;
@@ -30,32 +18,17 @@ type MyItemsStackParamList = {
 type MyItemsScreenProps =
   NativeStackScreenProps<MyItemsStackParamList, 'MyItemsHome'>;
 
-type QueryOption = {
-  label: string;
-  value: QueryMode;
-};
-
-const QUERY_OPTIONS: QueryOption[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Missing data', value: 'missing' },
-  { label: 'Recent', value: 'recent_added' },
-  { label: 'Recently Bought', value: 'recently_bought' },
-];
-
 const applyQueryMode = (
   ingredients: Ingredient[],
   queryMode: QueryMode
 ): Ingredient[] => {
-  if (queryMode === 'missing') {
-    return getMissingDataItems(ingredients);
-  }
 
   if (queryMode === 'recent_added') {
     return getRecentlyAdded(ingredients, 5);
   }
 
   if (queryMode === 'recently_bought') {
-    return filterRecentIngredients(ingredients);
+    return filterRecentlyBoughtIngredients(ingredients);
   }
 
   return ingredients;

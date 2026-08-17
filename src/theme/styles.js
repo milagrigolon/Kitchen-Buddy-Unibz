@@ -98,6 +98,36 @@ export const styles = StyleSheet.create({
         color: COLORS.textDark,
         fontFamily: FONT_FAMILY,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    tabBar: {
+        height: 76,
+        backgroundColor: '#ffffff',
+        borderTopWidth: 0,
+        borderRadius: 26,
+        marginHorizontal: 14,
+        marginBottom: 10,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.10,
+        shadowRadius: 14,
+        elevation: 8,
+        paddingTop: 8,
+        paddingBottom: 10,
+    },
+    tabBarItem: {
+        borderRadius: 18,
+        marginHorizontal: 4,
+        height: 54,
+    },
+    tabBarLabel: {
+        fontWeight: '600',
+        fontSize: 11,
+        marginTop: 2,
+    },
     mainButton: {
         ...baseButton,
         backgroundColor: COLORS.primary,
@@ -247,7 +277,7 @@ export const styles = StyleSheet.create({
         gap: 8,
         marginTop: 8,
     },
-    dayButton: {
+    specialButton: {
         flex: 1,
         paddingVertical: 8,
         paddingHorizontal: 12,
@@ -256,20 +286,26 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    dayButtonActive: {
+    specialButtonActive: {
         backgroundColor: COLORS.primary,
     },
-    dayButtonText: {
+    specialButtonText: {
         fontSize: 14,
         color: COLORS.textDark,
         fontWeight: '500',
         fontFamily: FONT_FAMILY,
         textAlign: 'center',
     },
-    dayButtonTextActive: {
+    specialButtonTextActive: {
         color: COLORS.white,
         fontWeight: '700',
         fontFamily: FONT_FAMILY,
+    },
+    quantityContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: 8,
+        marginBottom: -15,
     },
     emptyContainer: {
         marginTop: 40,
@@ -575,6 +611,9 @@ export const styles = StyleSheet.create({
         fontFamily: FONT_FAMILY,
         flexShrink: 1,
     },
+    formFieldsDistance: {
+        marginBottom: -8,
+    },
     cardFooterRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -586,29 +625,39 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fffbeb',
         borderColor: COLORS.warning,
         borderWidth: 1,
-        paddingVertical: 2,
-        paddingHorizontal: 8,
-        borderRadius: 12,
-        alignSelf: 'flex-start',
+        height: 20,
+        borderRadius: 10,
+        width: 108, // Larghezza fissa identica
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     missingDetailsText: {
         color: COLORS.warning,
         fontSize: 11,
         fontWeight: '700',
+        textAlign: 'center',
     },
     ripenessBadge: {
-        backgroundColor: '#fef3c7',        
-        borderColor: '#d97706',            
+        backgroundColor: '#fed5d5ea',        
+        borderColor: '#d90606',            
         borderWidth: 1,
-        paddingVertical: 2,
-        paddingHorizontal: 8,
+
+        height: 20,
+        borderRadius: 10,
         borderRadius: 12,
-        marginBottom: 4,                  
-        alignSelf: 'flex-start',      
+        width: 108, // Stessa larghezza
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     ripenessText: {
-        color: '#b42609',                  
+        color: '#d90606',                  
         fontSize: 11,
         fontWeight: '700',
+        textAlign: 'center',
+    },
+    badgesColumn: {
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 6, 
     },
 });

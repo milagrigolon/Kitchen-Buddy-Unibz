@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -59,57 +59,45 @@ const MyItemsNavigator: React.FC = () => (
 export const AppNavigator: React.FC = () => {
   const { status } = useAppStatus();
   const { nearbyShop } = useNearbyShop();
+  
+  // Navigation reference to control routing imperatively from effects
+  const navigationRef = useRef<any>(null);
+  const hasRedirectedRef = useRef<boolean>(false);
+
+  // =========================================================================
+  // AUTOMATIC ROUTE SWITCH WHEN NEARBY STORE IS DETECTED
+  // =========================================================================
+  // When shop detection completes asynchronously in the background, this effect
+  // triggers a navigation transition to the 'Groceries' tab if a store is found,
+  // ensuring the feature works seamlessly even with instant app launch.
+
+  useEffect(() => {
+    if (nearbyShop && navigationRef.current && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      navigationRef.current.navigate('Groceries');
+    }
+  }, [nearbyShop]);
 
   if (status === 'booting') {
     return (
-      <View style={[styles.flex1, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
-  /** TAB BASED NAVIGATION for the 4 main screens: 
-  * - Add
-  * - Expiring
-  * - My Items
-  * - Groceries
-   */
-
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Tab.Navigator
-        initialRouteName={nearbyShop ? 'Groceries' : 'Add'}
+        initialRouteName="Add"
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarHideOnKeyboard: true,
           tabBarActiveTintColor: COLORS.primary,
           tabBarInactiveTintColor: '#94a3b8',
-          tabBarStyle: {
-            height: 76,
-            backgroundColor: '#ffffff',
-            borderTopWidth: 0,
-            borderRadius: 26,
-            marginHorizontal: 14,
-            marginBottom: 10,
-            shadowColor: '#000000',
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.10,
-            shadowRadius: 14,
-            elevation: 8,
-            paddingTop: 8,
-            paddingBottom: 10,
-          },
-          tabBarItemStyle: {
-            borderRadius: 18,
-            marginHorizontal: 4,
-            height: 54,
-          },
-          tabBarLabelStyle: {
-            fontWeight: '600',
-            fontSize: 11,
-            marginTop: 2,
-          },
-
+          tabBarStyle: styles.tabBar,
+          tabBarItemStyle: styles.tabBarItem,
+          tabBarLabelStyle: styles.tabBarLabel,
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap = 'add-circle-outline';
 

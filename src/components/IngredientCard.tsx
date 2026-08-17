@@ -4,21 +4,12 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Ingredient } from '../types';
 import { styles } from '../theme/styles';
-import { needsRipenessCheck } from '../utils/helpers';
+import { needsRipenessCheck, hasMissingDetails } from '../utils/helpers';
 
 interface IngredientCardProps {
   ingredient: Ingredient;
   onPress: (ingredient: Ingredient) => void;
 }
-
-const hasMissingDetails = (ingredient: Ingredient): boolean => {
-  return (
-    !ingredient.category ||
-    !ingredient.location ||
-    !ingredient.expirationDate ||
-    ingredient.expirationDate.trim() === ''
-  );
-};
 
 const expirationText = (ingredient: Ingredient): string => {
   if (!ingredient.expirationDate || ingredient.expirationDate.trim() === '') {
@@ -76,6 +67,7 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({
           ))}
         </View>
 
+      <View style={styles.badgesColumn}>
         {/* 1. BADGE RIPENESS*/}
         {shouldCheckRipeness && (
           <View style={styles.ripenessBadge}>
@@ -89,6 +81,7 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({
             <Text style={styles.missingDetailsText}>Missing details</Text>
           </View>
         )}
+      </View>
 
       </View>
     </TouchableOpacity>

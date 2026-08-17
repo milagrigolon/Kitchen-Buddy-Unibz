@@ -28,8 +28,7 @@ export type Ingredient = {
   barcode?: string | null;
   brand?: string | null;
   imageUrl?: string | null;
-  isRecent?: boolean;
-  //isInGroceryList?: boolean;
+  isRecentlyBought?: boolean;
 };
 
 export type GroceryItem = {
@@ -52,3 +51,7 @@ export type Shop = {
   radiusMeters: number;
 };
 
+export type QueryOption = {
+  label: string;
+  value: QueryMode;
+};

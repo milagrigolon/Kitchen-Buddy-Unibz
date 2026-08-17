@@ -19,10 +19,10 @@ export const DaysThresholdControl: React.FC<DaysThresholdControlProps> = ({ valu
       {DAY_OPTIONS.map((option) => (
         <TouchableOpacity
           key={option}
-          style={[styles.dayButton, value === option && styles.dayButtonActive]}
+          style={[styles.specialButton, value === option && styles.specialButtonActive]}
           onPress={() => onChange(option)}
         >
-          <Text style={[styles.dayButtonText, value === option && styles.dayButtonTextActive]}>
+          <Text style={[styles.specialButtonText, value === option && styles.specialButtonTextActive]}>
             {option} days
           </Text>
         </TouchableOpacity>
