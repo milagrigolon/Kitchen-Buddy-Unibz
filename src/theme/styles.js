@@ -21,6 +21,7 @@ export const COLORS = {
     primary: '#f97316',
     primaryDark: '#c2410c',
     primaryLight: '#ffedd5',
+    primaryGradient: ['#fd6900', '#f5840b'],
     secondary: '#94a3b8',
     danger: '#ef4444',
     warning: '#f59e0b',
@@ -41,7 +42,7 @@ export const styles = StyleSheet.create({
         backgroundColor: COLORS.background,
     },
     headerContainer: {
-        height: 100,
+        height: 85,
         paddingTop: Constants.statusBarHeight,
         backgroundColor: COLORS.primary,
         flexDirection: 'column',
@@ -62,7 +63,7 @@ export const styles = StyleSheet.create({
 
     },
     headerSubtitle: {
-    color: COLORS.primaryLight,   // bianco caldo/crema, meno contrasto del titolo
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: 500,
     marginTop: 5,
