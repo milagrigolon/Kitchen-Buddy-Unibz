@@ -69,6 +69,11 @@ export const styles = StyleSheet.create({
         marginLeft: 5,
         fontFamily: FONT_FAMILY,
     },
+    switchRowTitle: {
+    fontWeight: 'bold',
+    color: COLORS.textDark,
+    fontFamily: FONT_FAMILY,
+    },
     input: {
         backgroundColor: COLORS.white,
         padding: 12,
@@ -535,7 +540,6 @@ export const styles = StyleSheet.create({
     },
     formSwitchGroup: {
         marginVertical: 12,
-        gap: 16,
     },
     formSwitchRow: {
         flexDirection: 'row',

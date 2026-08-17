@@ -233,7 +233,7 @@ const SwitchRow: React.FC<SwitchRowProps> = ({
         <MaterialCommunityIcons name={icon} size={24} color="#334155" />
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.label}>{title}</Text>
+          <Text style={styles.switchRowTitle}>{title}</Text>
           <Text style={styles.formSwitchDescription}>{description}</Text>
         </View>
       </View>
@@ -483,8 +483,8 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
           dispatch({ type: 'setConsumedPercentage', value })
         }
       />
-
       <View style={styles.formSwitchGroup}>
+        <View style={styles.controlContainer}>
         <SwitchRow
           icon="food-variant"
           title="Open"
@@ -492,9 +492,10 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
           value={form.isOpen}
           onChange={(value) => dispatch({ type: 'setOpen', value })}
         /> 
-
-        {/* display FROZEN option only for FRESH ITEMS*/}
-        { isFreshConfection(form.confection) ? (
+      </View>  
+      {/* display FROZEN option only for FRESH ITEMS*/}
+      { isFreshConfection(form.confection) ? (
+      <View style={styles.controlContainer}>
           <SwitchRow
           icon="snowflake"
           title="Frozen"
@@ -502,8 +503,9 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
           value={form.isFrozen}
           onChange={(value) => dispatch({ type: 'setFrozen', value })}
         />  
+        </View>
         ) : null}
-      </View>
+      </View>  
 
       <TouchableOpacity style={styles.mainButton} onPress={saveIngredient}>
         <Text style={styles.buttonText}>
