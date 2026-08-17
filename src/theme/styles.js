@@ -181,9 +181,10 @@ export const styles = StyleSheet.create({
         paddingBottom: SCREEN_BOTTOM_SPACING,
     },
     flatListContent: {
-        padding: 15,
-        paddingBottom: SCREEN_BOTTOM_SPACING,
-    },
+    paddingHorizontal: 8,   
+    paddingTop: 15,
+    paddingBottom: SCREEN_BOTTOM_SPACING,
+},
     controlContainer: {
         backgroundColor: COLORS.white,
         padding: 12,
@@ -263,8 +264,8 @@ export const styles = StyleSheet.create({
     card: {
         backgroundColor: COLORS.white,
         padding: 15,
-        marginHorizontal: 15,
         marginVertical: 6,
+        marginHorizontal: 4,   // piccolo gap tra le colonne, molto meno di prima
         borderRadius: 20,
         elevation: 2,
         borderLeftWidth: 6,
@@ -279,7 +280,6 @@ export const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginLeft: 10,
         color: COLORS.textDark,
         fontFamily: FONT_FAMILY,
         flexShrink: 1,
@@ -541,7 +541,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flex: 1,
-    },
+    },  
     formSwitchContent: {
         flexDirection: 'row',
         alignItems: 'center',
