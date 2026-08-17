@@ -65,7 +65,8 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: COLORS.textDark,
         marginTop: 10,
-        marginBottom: 5,
+        marginBottom: 10,
+        marginLeft: 5,
         fontFamily: FONT_FAMILY,
     },
     input: {

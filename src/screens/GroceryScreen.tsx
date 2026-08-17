@@ -138,11 +138,6 @@ export const GroceryScreen: React.FC = () => {
 
             <Text style={styles.label}>Shopping list</Text>
 
-            {nearbyShop ? (
-              <Text style={styles.emptyText}>
-                Showing the most useful groceries for this shop first.
-              </Text>
-            ) : null}
           </>
         }
         ListEmptyComponent={

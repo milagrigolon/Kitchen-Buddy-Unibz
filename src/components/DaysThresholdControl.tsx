@@ -7,7 +7,7 @@ interface DaysThresholdControlProps {
   onChange: (days: number) => void;
 }
 
-const DAY_OPTIONS = [3, 7, 14, 30];
+const DAY_OPTIONS = [3, 7, 14];
 
 /**
  * DaysThresholdControl chooses how soon the user wants to see ingredient entries.
