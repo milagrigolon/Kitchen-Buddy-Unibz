@@ -159,7 +159,7 @@ const [ingredients, setIngredients] =
   const [handledLowStockIngredientIds, setHandledLowStockIngredientIds] =
     usePersistentState<string[]>('kitchen-buddy-handled-low-stock', []);
   const [nearbyShop, setNearbyShop] = useState<Shop | null>(null);
-  const [status, setStatus] = useState<'booting' | 'ready'>('booting');
+  const [status, setStatus] = useState<'booting' | 'ready'>('ready');
 
   // =========================================================================
   // APP INITIALIZATION & BACKGROUND TASK EXECUTION
@@ -226,11 +226,17 @@ const [ingredients, setIngredients] =
         // `getCurrentPositionAsync` queries device location hardware and returns a 
         // Promise<LocationObject>. Accuracy.Low resolves significantly faster with 
         // minimal battery overhead, which is ideal for broad shop matching.
-        const position = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Low,
-        });
+      const position = await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000))
+      ]);
 
-        const { latitude, longitude } = position.coords;
+      // CHANGED - IOS malfunctioning
+      if (!position || !('coords' in position) || !position.coords || !mounted) {
+        return;
+      }
+
+      const { latitude, longitude } = position.coords;
 
         // STEP 4: Network Fetch Promise with Client-Side Timeout Protection.
         // We set an AbortController with a 4000ms timer. If the Overpass API network 
