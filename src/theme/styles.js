@@ -6,7 +6,7 @@ import Constants from 'expo-constants';
 const FONT_FAMILY = Platform.select({
     ios: 'System',
     android: 'Roboto',
-    default: 'sans-serif',
+    default: 'System',
 });
 
 const baseButton = {
@@ -44,17 +44,30 @@ export const styles = StyleSheet.create({
         height: 100,
         paddingTop: Constants.statusBarHeight,
         backgroundColor: COLORS.primary,
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 20,
     },
+    headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+},
     headerTitle: {
         color: COLORS.white,
-        fontSize: 22,
+        fontSize: 25,
         fontWeight: 'bold',
-        marginHorizontal: 15,
+        marginHorizontal: 3,
         fontFamily: FONT_FAMILY,
+
     },
+    headerSubtitle: {
+    color: COLORS.primaryLight,   // bianco caldo/crema, meno contrasto del titolo
+    fontSize: 14,
+    fontWeight: 500,
+    marginTop: 5,
+    textAlign: 'center',
+},
     formPadding: {
         padding: 20,
     },
@@ -113,7 +126,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 8,
-        marginBottom: 12,
+        marginBottom: 4,
     },
     chip: {
         flexDirection: 'row',
@@ -212,7 +225,7 @@ export const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 14,
-        marginBottom: 16,
+        marginBottom: 4,
         borderWidth: 1,
         borderColor: '#ffedd5',
         flexDirection: 'row',
@@ -265,6 +278,7 @@ export const styles = StyleSheet.create({
     emptyText: {
         color: COLORS.textMuted,
         fontSize: 15,
+        marginLeft: 5,
         fontFamily: FONT_FAMILY,
     },
     card: {
@@ -409,7 +423,7 @@ export const styles = StyleSheet.create({
     quickAddRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 4,
     },
     quickAddInput: {
         flex: 1,
