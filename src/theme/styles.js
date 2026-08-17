@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
 },
     formPadding: {
-        padding: 20,
+        padding: 20
     },
     formScrollContent: {
         paddingBottom: SCREEN_BOTTOM_SPACING,
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 14,
         elevation: 8,
         paddingTop: 8,
-        paddingBottom: 10,
+        paddingBottom: 8,
     },
     tabBarItem: {
         borderRadius: 18,
@@ -196,13 +196,6 @@ export const styles = StyleSheet.create({
         color: COLORS.danger,
         fontWeight: 'bold',
         fontFamily: FONT_FAMILY,
-    },
-    tabBar: {
-        flexDirection: 'row',
-        height: 65,
-        backgroundColor: COLORS.white,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.border,
     },
     tabItem: {
         flex: 1,
@@ -612,7 +605,7 @@ export const styles = StyleSheet.create({
         flexShrink: 1,
     },
     formFieldsDistance: {
-        marginBottom: -8,
+        marginBottom: -10,
     },
     cardFooterRow: {
         flexDirection: 'row',
@@ -641,10 +634,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fed5d5ea',        
         borderColor: '#d90606',            
         borderWidth: 1,
-
         height: 20,
         borderRadius: 10,
-        borderRadius: 12,
         width: 108, // Stessa larghezza
         alignItems: 'center',
         justifyContent: 'center',

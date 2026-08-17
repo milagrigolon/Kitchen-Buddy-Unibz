@@ -179,7 +179,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         // optional --> put the location to freezer if not selected
         location: state.location || 'freezer',
       };
-    };
+    }
 
     case 'setConsumedPercentage':
       return { ...state, consumedPercentage: action.value };
@@ -411,27 +411,33 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
+    <View style = {styles.formFieldsDistance}>  
       <FormInput 
         label="Name* (e.g. Lettuce)"
         value={form.name}
         onChange={setText('name')}
         placeholder="Ingredient Name"
       />
+    </View>
 
+  <View style = {styles.formFieldsDistance}>  
       <FormInput
         label="Brand (e.g. Esselunga, Primia)"
         value={form.brand}
         onChange={setText('brand')}
         placeholder="Optional brand"
       />
+  </View>
 
+  <View style = {styles.formFieldsDistance}>   
       <FormInput
         label="Barcode (numeric)"
         value={form.barcode}
         onChange={setText('barcode')}
         placeholder="Optional barcode"
       />
-
+  </View>
+  
       <Text style={styles.label}>Category</Text>
       <ChipSelector
         options={CATEGORIES}
