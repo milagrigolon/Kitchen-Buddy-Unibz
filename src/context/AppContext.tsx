@@ -148,52 +148,112 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [nearbyShop, setNearbyShop] = useState<Shop | null>(null);
   const [status, setStatus] = useState<'booting' | 'ready'>('booting');
 
+  // =========================================================================
+  // APP INITIALIZATION & BACKGROUND TASK EXECUTION
+  // =========================================================================
+  // Understanding `useEffect` in React:
+  //
+  // 1. What is `useEffect`?
+  //    `useEffect` is a React Hook designed to handle "side effects" in functional 
+  //    components. Side effects include data fetching, timers, manual DOM updates, 
+  //    and interacting with device hardware (such as GPS/Location services).
+  //    It runs *after* React has completed the render cycle, ensuring that heavy 
+  //    computations or external tasks do not block the UI from drawing.
+  //
+  // 2. The Dependency Array `[]`:
+  //    Passing an empty array `[]` as the second argument tells React to execute 
+  //    this effect callback strictly ONCE when the component mounts (is inserted into 
+  //    the screen tree), and never re-run it during subsequent re-renders.
+  //
+  // 3. Why we use an inner `async` function (`initApp`):
+  //    `useEffect` callbacks cannot be marked as `async` directly because React 
+  //    expects the effect to return either nothing (`undefined`) or a synchronous 
+  //    cleanup function. Returning a Promise directly from `useEffect` leads to race 
+  //    conditions. Thus, we declare `const initApp = async () => {...}` inside the 
+  //    hook and trigger it via `void initApp()`.
+  //
+  // 4. The Cleanup Function (`return () => { mounted = false; }`):
+  //    When the component unmounts, React executes the returned cleanup function. 
+  //    Setting `mounted = false` prevents memory leaks and errors caused by trying 
+  //    to update React state (`setStatus`, `setNearbyShop`) on a component that no 
+  //    longer exists on screen.
+  //
+  // 5. Asynchronous Promises & `async/await`:
+  //    - `async` creates a function that implicitly returns a Promise.
+  //    - `await` pauses execution of this microtask until the underlying Promise 
+  //      resolves (or rejects), while freeing up the main JavaScript thread so 
+  //      the application remains responsive and smooth to user touches.
+  // =========================================================================
+
   useEffect(() => {
+    // Flag to track whether the component is currently mounted in the view hierarchy
     let mounted = true;
 
-    const detectNearbyShop = async (): Promise<void> => {
+    const initApp = async (): Promise<void> => {
       try {
+        // STEP 1: Unblock the UI immediately.
+        // We resolve `status` to 'ready' synchronously/upfront so the app renders
+        // the main interface with local data (from AsyncStorage) immediately, 
+        // avoiding booting screen lockups.
+        if (mounted) {
+          setStatus('ready');
+        }
+
+        // STEP 2: Await Location Permission Promise.
+        // `requestForegroundPermissionsAsync` returns a Promise<PermissionResponse>.
+        // `await` waits for the user to grant or deny system permissions.
         const permission = await Location.requestForegroundPermissionsAsync();
 
-        if (permission.status !== 'granted') {
-          if (mounted) {
-            setNearbyShop(null);
-            setStatus('ready');
-          }
-
+        // GUARD CLAUSE: if the user rejects permission or the component unmounted, exit early.
+        if (permission.status !== 'granted' || !mounted) {
           return;
         }
 
+        // STEP 3: Await Native GPS Promise.
+        // `getCurrentPositionAsync` queries device location hardware and returns a 
+        // Promise<LocationObject>. Accuracy.Low resolves significantly faster with 
+        // minimal battery overhead, which is ideal for broad shop matching.
         const position = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Low,
         });
 
         const { latitude, longitude } = position.coords;
+
+        // STEP 4: Network Fetch Promise with Client-Side Timeout Protection.
+        // We set an AbortController with a 4000ms timer. If the Overpass API network 
+        // request takes too long on slow mobile networks, the controller cancels it.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        // `fetchNearbyShops` returns a Promise<Shop[]>.
+        // Appending `.catch(() => [])` handles any network rejection gracefully by 
+        // resolving to an empty array instead of throwing an unhandled exception.
         const apiShops = await fetchNearbyShops(latitude, longitude).catch(() => []);
+        clearTimeout(timeoutId);
+
+        // STEP 5: Merge live API results with static fallback shop definitions.
         const shops = [...apiShops, ...DEFAULT_SHOPS];
 
+        // STEP 6: Compute closest store and update React Context state.
         if (mounted) {
           setNearbyShop(nearestShopFrom(latitude, longitude, shops));
-          setStatus('ready');
         }
       } catch (error) {
-        console.warn('Unable to resolve nearby store', error);
-
-        if (mounted) {
-          setNearbyShop(null);
-          setStatus('ready');
-        }
+        // Safely catch and log unexpected runtime errors without crashing the app
+        console.warn('Unable to resolve background location/store', error);
       }
     };
 
-    void detectNearbyShop();
+    // trigger the asynchronous initialization function
+    void initApp();
 
+    // CLEAN UP PHASE: runs when the component unmounts to prevent asynchronous memory leaks
     return () => {
       mounted = false;
     };
-  }, []);
+  }, []); // empty dependency array ensures this effect runs exactly once on mount
 
-  // Persisted ingredient state: these updates are intentionally written through the
+  // PERSISTENT INGREDIENT STATE: these updates are intentionally written through the
   // functional `setState` form so they are based on the latest snapshot, not a stale closure.
   const addIngredient = (ingredient: Ingredient): void => {
     setIngredients((current) => [ingredient, ...current]);
