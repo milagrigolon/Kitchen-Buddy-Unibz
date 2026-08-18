@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
         backgroundColor: COLORS.background,
     },
     headerContainer: {
-        height: 85,
+        height: 120,
         paddingTop: Constants.statusBarHeight,
         backgroundColor: COLORS.primary,
         flexDirection: 'column',
@@ -436,13 +436,18 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f97316',
-        borderWidth: 1,
-        borderColor: '#ea580c',
-        borderRadius: 8,
-        paddingVertical: 12,
+        backgroundColor: COLORS.primary,
+        borderWidth: 2,
+        borderColor:'rgba(255, 255, 255, 0.4)',
+        borderRadius: 14,
+        paddingVertical: 14,
         paddingHorizontal: 16,
         gap: 8,
+        elevation: 3,                // ombra Android
+        shadowColor: '#000',         // ombra iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
     },
     addScreenScanBarcodeText: {
         fontSize: 15,
