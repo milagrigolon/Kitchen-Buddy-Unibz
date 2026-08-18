@@ -446,11 +446,16 @@ export const buildBoughtIngredient = (
   });
 };
 
+/**
+ * Determines whether a grocery item matches a specific store type based on
+ * its assigned category or predefined product name keywords.
+ */
 const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
   const text = item.name.toLowerCase();
-  const dairyNames = /milk|yogurt|cheese|butter|cream|latte|yogurt|formaggio|burro|panna/;
-  const pantryNames = /pasta|rice|flour|bread|cereal|tomato|oil|salt|sugar|pepper|coffee|pasta|riso|farina|pane|cereali|pomodoro|olio|sale|zucchero|pepe|caff/;
-  const fruitNames = /apple|banana|orange|pear|grape|fruit|berries|apple|banana|arancia|pera|uva|frutta|fragole|mela/;
+  const dairyNames = /milk|yogurt|cheese|butter|cream|latte|formaggio|burro|panna/;
+  const pantryNames = /pasta|rice|flour|cereal|tomato|oil|salt|sugar|pepper|coffee|riso|farina|cereali|pomodoro|olio|sale|zucchero|pepe|caff/;
+  const bakeryNames = /bread|bagel|croissant|cake|pie|bun|pane|focaccia|brioche|torta|pasticceria/;
+  const fruitNames = /apple|banana|orange|pear|grape|fruit|berries|mela|arancia|pera|uva|frutta|fragole/;
   const vegetableNames = /vegetable|lettuce|spinach|tomato|carrot|pepper|onion|celery|cucumber|verdure|lattuga|spinaci|carota|peperone|cipolla|sedano|cetriolo|pomodoro/;
   const meatNames = /meat|beef|chicken|pork|sausage|steak|carne|pollo|maiale|salsiccia|bistecca/;
   const fishNames = /fish|salmon|tuna|shrimp|seafood|pesce|salmone|tonno|gamberi/;
@@ -463,6 +468,7 @@ const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
       item.category === 'liquid' ||
       dairyNames.test(text) ||
       pantryNames.test(text) ||
+      bakeryNames.test(text) ||
       fruitNames.test(text) ||
       vegetableNames.test(text)
     );
@@ -474,6 +480,19 @@ const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
 
   if (shop.type === 'fishmonger') {
     return item.category === 'fish' || fishNames.test(text);
+  }
+
+  if (shop.type === 'greengrocer') {
+    return (
+      item.category === 'fruit' ||
+      item.category === 'vegetable' ||
+      fruitNames.test(text) ||
+      vegetableNames.test(text)
+    );
+  }
+
+  if (shop.type === 'bakery') {
+    return bakeryNames.test(text);
   }
 
   return false;
@@ -499,6 +518,10 @@ export const sortGroceriesForShop = (items: GroceryItem[], shop: Shop | null): G
 };
 
 
+/**
+ * Returns a list of default product suggestions tailored to the specific
+ * type of nearby store selected.
+ */
 export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
   if (!shop) {
     return [];
@@ -510,6 +533,14 @@ export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
 
   if (shop.type === 'fishmonger') {
     return ['Fish', 'Salmon', 'Tuna'];
+  }
+
+  if (shop.type === 'greengrocer') {
+    return ['Apples', 'Bananas', 'Tomatoes', 'Salad'];
+  }
+
+  if (shop.type === 'bakery') {
+    return ['Bread', 'Croissant', 'Focaccia', 'Baguette'];
   }
 
   return ['Milk', 'Pasta', 'Vegetables', 'Fruit', 'Bread'];

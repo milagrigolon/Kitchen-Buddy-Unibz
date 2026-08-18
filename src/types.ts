@@ -5,7 +5,7 @@ export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured'| 'packaged';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
-export type ShopType = 'general' | 'butcher' | 'fishmonger';
+export type ShopType = 'general' | 'butcher' | 'fishmonger'|'bakery'|'greengrocer';
 export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'ripeness_check';
 export type DietaryTag = 'vegan' | 'vegetarian' | 'halal' | 'kosher' | 'gluten-free'| 'lactose-free' ;
 

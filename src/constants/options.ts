@@ -38,7 +38,7 @@ export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
   { label: 'Too Ripe', value: 'too ripe', icon: 'warning-sharp', iconFamily: 'ionicons' },
 ];
 
-// FOR TESTING
+// DEFAULT SHOPS FOR TESTING
 export const DEFAULT_SHOPS: Shop[] = [
   {
     id: 'general-market',
@@ -50,7 +50,7 @@ export const DEFAULT_SHOPS: Shop[] = [
   },
   {
     id: 'butcher-shop',
-    name: 'Butcher Shop',
+    name: 'Butcher Shop Isera',
     type: 'butcher',
     latitude: 45.8837737,
     longitude: 11.0063170,
@@ -58,12 +58,29 @@ export const DEFAULT_SHOPS: Shop[] = [
   },
   {
     id: 'fish-market',
-    name: 'Fish Market',
+    name: 'Fish Market - via Fago',
     type: 'fishmonger',
+    latitude: 46.496,
+    longitude: 11.338,
+    radiusMeters: 140,
+  },
+  {
+    id: 'local-bakery',
+    name: 'Mosaico Aquileia',
+    type: 'bakery',
     latitude: 45.7589000,
     longitude: 13.366100,
     radiusMeters: 140,
   },
+    {
+    id: 'greengrocerey-shop',
+    name: 'Fruttivendolo Bolzano Centro',
+    type: 'greengrocer',
+    latitude: 46.4989,
+    longitude: 11.3506,
+    radiusMeters: 140,
+  },
+
 
 ];
 

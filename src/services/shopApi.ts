@@ -30,10 +30,17 @@ const shopTypeFromTag = (shopTag?: string): ShopType | null => {
     return 'fishmonger';
   }
 
+  if (shopTag === 'greengrocer')  {
+    return 'greengrocer';
+  }
+
+  if (shopTag === 'bakery') {
+    return 'bakery';
+  }
+
   if (
     shopTag === 'supermarket' ||
-    shopTag === 'convenience' ||
-    shopTag === 'greengrocer'
+    shopTag === 'convenience'
   ) {
     return 'general';
   }
@@ -45,9 +52,9 @@ const overpassQuery = (latitude: number, longitude: number): string => {
   return `
     [out:json][timeout:8];
     (
-      node["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer"]
+      node["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer|bakery"]
         (around:${SEARCH_RADIUS_METERS},${latitude},${longitude});
-      way["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer"]
+      way["shop"~"supermarket|convenience|butcher|seafood|fishmonger|greengrocer|bakery"]
         (around:${SEARCH_RADIUS_METERS},${latitude},${longitude});
     );
     out center;
