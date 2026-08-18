@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -51,6 +51,13 @@ const MyItemsNavigator: React.FC = () => (
   </MyItemsStack.Navigator>
 );
 
+// Narrow interface exposing only the navigation methods we actually use,
+// instead of typing navigationRef as `any` (which disables type checking).
+interface NavigationRef {
+  navigate: (screen: string) => void;
+  isReady?: () => boolean;
+}
+
 /**
  * AppNavigator is the CENTRAL ROUTING LAYER
  * It shows an initial loading indicator while the app bootstraps, and then
@@ -61,8 +68,21 @@ export const AppNavigator: React.FC = () => {
   const { nearbyShop } = useNearbyShop();
   
   // Navigation reference to control routing imperatively from effects
-  const navigationRef = useRef<any>(null);
-  const hasRedirectedRef = useRef<boolean>(false);
+  const navigationRef = useRef<NavigationRef | null>(null);
+  // Tracks which shop we last auto-redirected for, instead of a plain boolean —
+  // this lets the redirect fire again if the user moves to a DIFFERENT shop,
+  // rather than blocking the redirect forever after the first time.
+  const [openedFromShop, setOpenedFromShop] = useState('');
+
+// NavigationContainer expects a ref exposing its full API; we only need
+// `navigate` and `isReady`, so we validate and narrow it down here instead
+// of typing navigationRef with the full (and more complex) library type.
+const setNavigationRef = (ref: unknown): void => {
+  const possibleRef = ref as NavigationRef | null;
+  navigationRef.current = possibleRef && typeof possibleRef.navigate === 'function'
+    ? possibleRef
+    : null;
+};
 
   // =========================================================================
   // AUTOMATIC ROUTE SWITCH WHEN NEARBY STORE IS DETECTED
@@ -71,12 +91,17 @@ export const AppNavigator: React.FC = () => {
   // triggers a navigation transition to the 'Groceries' tab if a store is found,
   // ensuring the feature works seamlessly even with instant app launch.
 
-  useEffect(() => {
-    if (nearbyShop && navigationRef.current && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
-      navigationRef.current.navigate('Groceries');
-    }
-  }, [nearbyShop]);
+useEffect(() => {
+  const navigation = navigationRef.current;
+  // isReady may not exist on every navigation ref implementation, so we
+  // fall back to just checking that the ref itself is set.
+  const isReady = navigation?.isReady ? navigation.isReady() : Boolean(navigation);
+
+  if (nearbyShop && openedFromShop !== nearbyShop.id && navigation && isReady) {
+    setOpenedFromShop(nearbyShop.id);
+    navigation.navigate('Groceries');
+  }
+}, [nearbyShop, openedFromShop]);
 
   if (status === 'booting') {
     return (
@@ -87,7 +112,7 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={setNavigationRef}>
       <Tab.Navigator
         initialRouteName="Add"
         screenOptions={({ route }) => ({
