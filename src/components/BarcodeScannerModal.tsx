@@ -64,7 +64,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {permission?.granted ? (
           <View style={styles.cameraContainer}>
             <CameraView
-              onBarcodeScanned={handleScan}
+              onBarcodeScanned={scanned ? undefined : handleScan}
               barcodeScannerSettings={{
                 barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128'],
               }}
