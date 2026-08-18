@@ -17,6 +17,7 @@ import { COLORS, styles } from '../theme/styles';
 import {
   Category,
   ConfectionType,
+  DietaryTag,
   Ingredient,
   Location,
   RipenessStatus,
@@ -68,6 +69,7 @@ type FormState = {
   barcode: string;
   imageUrl: string | null;
   consumedPercentage: number;
+  dietaryTags: DietaryTag[];
 };
 
 type FormAction =
@@ -81,6 +83,7 @@ type FormAction =
   | { type: 'setOpen'; value: boolean }
   | { type: 'setFrozen'; value: boolean }
   | { type: 'setConsumedPercentage'; value: number }
+  | { type: 'toggleDietaryTag'; value: DietaryTag } 
   | { type: 'prefill'; value: BarcodeScanSuggestion }
   | { type: 'reset' };
 
@@ -102,6 +105,7 @@ const emptyFormState = (): FormState => {
     barcode: '',
     imageUrl: null,
     consumedPercentage: 0,
+    dietaryTags: [], 
   };
 };
 
@@ -125,6 +129,7 @@ const formStateFromIngredient = (ingredient?: Ingredient | null): FormState => {
     barcode: ingredient.barcode ?? '',
     imageUrl: ingredient.imageUrl ?? null,
     consumedPercentage: ingredient.consumedPercentage ?? 0,
+    dietaryTags: ingredient.dietaryTags ?? [],
   };
 };
 
@@ -184,6 +189,14 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case 'setConsumedPercentage':
       return { ...state, consumedPercentage: action.value };
 
+    case 'toggleDietaryTag':
+      return {
+        ...state,
+        dietaryTags: state.dietaryTags.includes(action.value)
+        ? state.dietaryTags.filter((tag) => tag !== action.value)
+        : [...state.dietaryTags, action.value],
+  };  
+
     case 'prefill':
       return {
         ...state,
@@ -239,6 +252,44 @@ const SwitchRow: React.FC<SwitchRowProps> = ({
       </View>
 
       <Switch value={value} onValueChange={onChange} />
+    </View>
+  );
+};
+
+const DIETARY_OPTIONS: { value: DietaryTag; label: string }[] = [
+  { value: 'vegan', label: 'Vegan' },
+  { value: 'vegetarian', label: 'Vegetarian' },
+  { value: 'halal', label: 'Halal' },
+  { value: 'kosher', label: 'Kosher' },
+  { value: 'gluten-free', label: 'Gluten-free' },
+  { value: 'lactose-free', label: 'Lactose-free' },
+];
+
+interface DietaryCheckboxGroupProps {
+  selected: DietaryTag[];
+  onToggle: (tag: DietaryTag) => void;
+}
+
+const DietaryCheckboxGroup: React.FC<DietaryCheckboxGroupProps> = ({ selected, onToggle }) => {
+  return (
+    <View style={styles.dietaryBox}>
+      {DIETARY_OPTIONS.map((option) => {
+        const isChecked = selected.includes(option.value);
+
+        return (
+          <TouchableOpacity
+            key={option.value}
+            style={styles.dietaryRow}
+            onPress={() => onToggle(option.value)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+              {isChecked ? <Ionicons name="checkmark" size={14} color={COLORS.white} /> : null}
+            </View>
+            <Text style={styles.dietaryLabel}>{option.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -394,6 +445,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       barcode: form.barcode,
       brand: form.brand,
       imageUrl: form.imageUrl,
+      dietaryTags: form.dietaryTags, 
       previousIngredient: initialData ?? null,
     });
 
@@ -459,6 +511,7 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
         onSelect={(value) => dispatch({ type: 'setConfection', value })}
       />
 
+      
       <View style={styles.formHelperRow}>
         <Ionicons name="information-circle-outline" size={16} color="#64748b" />
         <Text style={styles.formHelperText}>
@@ -473,6 +526,12 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
           onChange={(value) => dispatch({ type: 'setRipeness', value })}
         />
       ) : null}
+
+      <Text style={styles.label}>Dietary Needs</Text>
+      <DietaryCheckboxGroup
+        selected={form.dietaryTags}
+        onToggle={(value) => dispatch({ type: 'toggleDietaryTag', value })}
+      />
 
       <EstimateDatePicker
         value={form.expiration}

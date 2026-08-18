@@ -4,6 +4,7 @@
 import {
   Category,
   ConfectionType,
+  DietaryTag,
   GroceryItem,
   Ingredient,
   Location,
@@ -120,6 +121,7 @@ export interface IngredientDraftInput {
   barcode?: string | null;
   brand?: string | null;
   imageUrl?: string | null;
+  dietaryTags?: DietaryTag[]; 
   previousIngredient?: Ingredient | null;
 }
 
@@ -207,6 +209,7 @@ export const buildIngredientFromDraft = ({
   barcode,
   brand,
   imageUrl,
+  dietaryTags,
   previousIngredient,
 }: IngredientDraftInput): Ingredient => {
   const parsed = parseExpiration(expiration);
@@ -255,6 +258,7 @@ export const buildIngredientFromDraft = ({
     barcode: barcode?.trim() || null,
     brand: brand?.trim() || null,
     imageUrl,
+    dietaryTags: dietaryTags ?? previousIngredient?.dietaryTags ?? [],
     isRecentlyBought: previousIngredient?.isRecentlyBought ?? false,
   };
 };

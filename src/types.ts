@@ -7,6 +7,8 @@ export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
 export type ShopType = 'general' | 'butcher' | 'fishmonger';
 export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'ripeness_check';
+export type DietaryTag = 'vegan' | 'vegetarian' | 'halal' | 'kosher' | 'gluten-free'| 'lactose-free' ;
+
 
 export type Ingredient = {
   id: string;
@@ -29,6 +31,7 @@ export type Ingredient = {
   brand?: string | null;
   imageUrl?: string | null;
   isRecentlyBought?: boolean;
+  dietaryTags?: DietaryTag[];
 };
 
 export type GroceryItem = {
