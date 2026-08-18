@@ -42,10 +42,10 @@ export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
 export const DEFAULT_SHOPS: Shop[] = [
   {
     id: 'general-market',
-    name: 'General Market',
+    name: 'General Market NOI',
     type: 'general',
-    latitude: 45.7583860,
-    longitude: 13.365755,
+    latitude: 46.470,
+    longitude: 11.330,
     radiusMeters: 150,
   },
   {
@@ -64,6 +64,7 @@ export const DEFAULT_SHOPS: Shop[] = [
     longitude: 13.366100,
     radiusMeters: 140,
   },
+
 ];
 
 export const QUERY_OPTIONS: QueryOption[] = [
