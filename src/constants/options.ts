@@ -28,6 +28,7 @@ export const CONFECTIONS: OptionItem<ConfectionType>[] = [
   { label: 'Canned', value: 'canned', icon: 'jar', iconFamily: 'fontawesome' },
   { label: 'Frozen', value: 'frozen', icon: 'snowflake', iconFamily: 'material' },
   { label: 'Cured', value: 'cured', icon: 'sausage', iconFamily: 'material' },
+  { label: 'Packaged', value: 'packaged', icon: 'package-variant', iconFamily: 'material' },
 ];
 
 export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [

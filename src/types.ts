@@ -2,7 +2,7 @@
 
 export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'other';
 export type Location = 'fridge' | 'freezer' | 'pantry';
-export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured';
+export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured'| 'packaged';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
 export type ShopType = 'general' | 'butcher' | 'fishmonger';
