@@ -11,6 +11,10 @@ interface IngredientListProps {
   numColumns?: number;
 }
 
+/**
+ * IngredientList is a reusable component that renders a list of ingredients in a FlatList. 
+ * It supports multiple columns and displays a message when the list is empty.
+ */
 export const IngredientList: React.FC<IngredientListProps> = ({
   ingredients,
   onPress,

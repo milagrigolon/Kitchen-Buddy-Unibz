@@ -1,29 +1,11 @@
-// Reusable form for adding and editing ingredients.
-
 import React, { useEffect, useReducer } from 'react';
-import {
-  Alert,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View, Platform} from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BarcodeScanSuggestion } from '../services/openFoodFacts';
-import { CATEGORIES, CONFECTIONS, LOCATIONS, RIPENESS_LEVELS } from '../constants/options';
+import { CATEGORIES, CONFECTIONS, LOCATIONS, RIPENESS_LEVELS, DIETARY_OPTIONS} from '../constants/options';
 import { COLORS, styles } from '../theme/styles';
-import {
-  Category,
-  ConfectionType,
-  DietaryTag,
-  Ingredient,
-  Location,
-  RipenessStatus,
-  Unit,
-} from '../types';
-import { buildIngredientFromDraft, isFreshConfection, getTodayDateString } from '../utils/helpers';
+import { Category, ConfectionType, DietaryTag, Ingredient, Location, RipenessStatus, Unit } from '../types';
+import { buildIngredientFromDraft, isFreshConfection, getTodayDateString, isPastExpiration } from '../utils/helpers';
 import { ChipSelector } from './ChipSelector';
 import { EstimateDatePicker } from './EstimateDatePicker';
 import { QuantityControl } from './QuantityControl';
@@ -60,14 +42,13 @@ type FormState = {
   location: Location | null;
   confection: ConfectionType | null;
   expiration: string;
-  quantity: number;
+  quantity: number | null;
   unit: Unit;
   ripeness: RipenessStatus | null;
   isOpen: boolean;
   isFrozen: boolean;
   brand: string;
   barcode: string;
-  imageUrl: string | null;
   consumedPercentage: number;
   dietaryTags: DietaryTag[];
 };
@@ -77,7 +58,7 @@ type FormAction =
   | { type: 'setCategory'; value: Category | null }
   | { type: 'setLocation'; value: Location | null }
   | { type: 'setConfection'; value: ConfectionType | null }
-  | { type: 'setQuantity'; value: number }
+  | { type: 'setQuantity'; value: number | null }
   | { type: 'setUnit'; value: Unit }
   | { type: 'setRipeness'; value: RipenessStatus | null }
   | { type: 'setOpen'; value: boolean }
@@ -96,14 +77,13 @@ const emptyFormState = (): FormState => {
     location: null,
     confection: null,
     expiration: '',
-    quantity: 0,
+    quantity: null,
     unit: 'pcs',
     ripeness: null,
     isOpen: false,
     isFrozen: false,
     brand: '',
     barcode: '',
-    imageUrl: null,
     consumedPercentage: 0,
     dietaryTags: [], 
   };
@@ -120,14 +100,13 @@ const formStateFromIngredient = (ingredient?: Ingredient | null): FormState => {
     location: ingredient.location,
     confection: ingredient.confectionType,
     expiration: ingredient.expirationDate,
-    quantity: ingredient.quantity ?? 0,
+    quantity: ingredient.quantity ?? null,
     unit: ingredient.unit ?? 'pcs',
     ripeness: ingredient.ripeness ?? null,
     isOpen: ingredient.isOpen ?? false,
     isFrozen: ingredient.isFrozen ?? false,
     brand: ingredient.brand ?? '',
     barcode: ingredient.barcode ?? '',
-    imageUrl: ingredient.imageUrl ?? null,
     consumedPercentage: ingredient.consumedPercentage ?? 0,
     dietaryTags: ingredient.dietaryTags ?? [],
   };
@@ -148,7 +127,15 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       return { ...state, location: action.value };
 
     case 'setConfection':
-      return { ...state, confection: action.value };
+      const newConfection = action.value;
+      const canBeFrozen = isFreshConfection(newConfection) || newConfection === 'packaged';
+
+      return {
+        ...state,
+        confection: newConfection,
+        isFrozen: canBeFrozen ? state.isFrozen : false,
+        ripeness: isFreshConfection(newConfection) ? state.ripeness : null,
+      };
 
     case 'setQuantity':
       return { ...state, quantity: action.value };
@@ -165,23 +152,18 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case 'setFrozen': {
       const isNowFrozen = action.value;
 
-      // CHANGING FROZEN SWITCH (from true to false) - defrosting
       if (!isNowFrozen) {
         return {
           ...state,
           isFrozen: false,
-          // 1. exp date is TODAY because defrosted products do not last long and should be consumed quickly
           expiration: getTodayDateString(),
-          // 2. removes location from freezer to NULL
           location: state.location === 'freezer' ? null : state.location,
         };
       }
 
-      // ACTIVATING THE FROZEN STATE
       return {
         ...state,
         isFrozen: true,
-        // optional --> put the location to freezer if not selected
         location: state.location || 'freezer',
       };
     }
@@ -204,7 +186,6 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         brand: action.value.brand ?? '',
         category: action.value.category ?? null,
         barcode: action.value.barcode ?? '',
-        imageUrl: action.value.imageUrl ?? null,
       };
 
     case 'reset':
@@ -256,15 +237,6 @@ const SwitchRow: React.FC<SwitchRowProps> = ({
   );
 };
 
-const DIETARY_OPTIONS: { value: DietaryTag; label: string }[] = [
-  { value: 'vegan', label: 'Vegan' },
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'halal', label: 'Halal' },
-  { value: 'kosher', label: 'Kosher' },
-  { value: 'gluten-free', label: 'Gluten-free' },
-  { value: 'lactose-free', label: 'Lactose-free' },
-];
-
 interface DietaryCheckboxGroupProps {
   selected: DietaryTag[];
   onToggle: (tag: DietaryTag) => void;
@@ -309,14 +281,12 @@ const RipenessSelector: React.FC<RipenessSelectorProps> = ({ value, onChange }) 
     ? RIPENESS_LEVELS.findIndex((option) => option.value === value)
     : -1;
 
-  // IF null or not found
   const isSelected = selectedIndex >= 0;
   const fillWidth = isSelected
     ? (`${((selectedIndex + 1) / RIPENESS_LEVELS.length) * 100}%` as `${number}%`)
     : '0%';
 
   const handleSelect = (optionValue: RipenessStatus) => {
-    // if clicked again, deselect to NULL 
     if (value === optionValue) {
       onChange(null);
     } else {
@@ -423,8 +393,22 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
   };
 
   const saveIngredient = (): void => {
+    
     if (!form.name.trim()) {
-      Alert.alert('Attention', 'Please enter a name for the ingredient.');
+      if (Platform.OS === 'web') {
+          alert('Attention: Please enter a name for the ingredient.');
+      } else {
+          Alert.alert('Attention', 'Please enter a name for the ingredient.');
+      }
+      return;
+    }
+
+    if (isPastExpiration(form.expiration)) {
+      if (Platform.OS === 'web') {
+        alert('Invalid Date: The expiration date cannot be in the past.');
+      } else {
+        Alert.alert('Invalid Date', 'The expiration date cannot be in the past.');
+      }
       return;
     }
 
@@ -444,7 +428,6 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
       isFrozen: form.isFrozen,
       barcode: form.barcode,
       brand: form.brand,
-      imageUrl: form.imageUrl,
       dietaryTags: form.dietaryTags, 
       previousIngredient: initialData ?? null,
     });
@@ -458,141 +441,142 @@ export const IngredientForm: React.FC<IngredientFormProps> = ({
 
   return (
     <ScrollView
-      style={[styles.formPadding, { flex: 1 }]}
-      contentContainerStyle={styles.formScrollContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
-    <View style = {styles.formFieldsDistance}>  
-      <FormInput 
-        label="Name* (e.g. Lettuce)"
-        value={form.name}
-        onChange={setText('name')}
-        placeholder="Ingredient Name"
-      />
-    </View>
+        style={[styles.formPadding, { flex: 1 }]}
+        contentContainerStyle={styles.formScrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
 
-  <View style = {styles.formFieldsDistance}>  
-      <FormInput
-        label="Brand (e.g. Esselunga, Primia)"
-        value={form.brand}
-        onChange={setText('brand')}
-        placeholder="Optional brand"
-      />
-  </View>
-
-  <View style = {styles.formFieldsDistance}>   
-      <FormInput
-        label="Barcode (numeric)"
-        value={form.barcode}
-        onChange={setText('barcode')}
-        placeholder="Optional barcode"
-      />
-  </View>
-  
-      <Text style={styles.label}>Category</Text>
-      <ChipSelector
-        options={CATEGORIES}
-        selectedValue={form.category}
-        onSelect={(value) => dispatch({ type: 'setCategory', value })}
-      />
-
-      <Text style={styles.label}>Location</Text>
-      <ChipSelector
-        options={LOCATIONS}
-        selectedValue={form.location}
-        onSelect={(value) => dispatch({ type: 'setLocation', value })}
-      />
-
-      <Text style={styles.label}>Confection</Text>
-      <ChipSelector
-        options={CONFECTIONS}
-        selectedValue={form.confection}
-        onSelect={(value) => dispatch({ type: 'setConfection', value })}
-      />
-
-      
-      <View style={styles.formHelperRow}>
-        <Ionicons name="information-circle-outline" size={16} color="#64748b" />
-        <Text style={styles.formHelperText}>
-          Fresh ingredients have a Ripeness Status that is checked automatically every 3 days. 
-        </Text>
+      <View style = {styles.formFieldsDistance}>  
+        <FormInput 
+          label="Name* (e.g. Lettuce)"
+          value={form.name}
+          onChange={setText('name')}
+          placeholder="Ingredient Name"
+        />
       </View>
 
-      {/* display RIPENESS option only for FRESH ITEMS*/}
-      {isFreshConfection(form.confection) ? (
-        <RipenessSelector
-          value={form.ripeness}
-          onChange={(value) => dispatch({ type: 'setRipeness', value })}
+      <View style = {styles.formFieldsDistance}>  
+          <FormInput
+            label="Brand (e.g. Esselunga, Primia)"
+            value={form.brand}
+            onChange={setText('brand')}
+            placeholder="Optional brand"
+          />
+      </View>
+
+      <View style = {styles.formFieldsDistance}>   
+          <FormInput
+            label="Barcode (numeric)"
+            value={form.barcode}
+            onChange={setText('barcode')}
+            placeholder="Optional barcode"
+      />
+      
+      </View>
+      
+        <Text style={styles.label}>Category</Text>
+          <ChipSelector
+            options={CATEGORIES}
+            selectedValue={form.category}
+            onSelect={(value) => dispatch({ type: 'setCategory', value })}
         />
-      ) : null}
 
-      <Text style={styles.label}>Dietary Needs</Text>
-      <DietaryCheckboxGroup
-        selected={form.dietaryTags}
-        onToggle={(value) => dispatch({ type: 'toggleDietaryTag', value })}
-      />
+        <Text style={styles.label}>Location</Text>
+          <ChipSelector
+            options={LOCATIONS}
+            selectedValue={form.location}
+            onSelect={(value) => dispatch({ type: 'setLocation', value })}
+        />
 
-      <EstimateDatePicker
-        value={form.expiration}
-        onChange={setText('expiration')}
-      />
+        <Text style={styles.label}>Confection</Text>
+          <ChipSelector
+            options={CONFECTIONS}
+            selectedValue={form.confection}
+            onSelect={(value) => dispatch({ type: 'setConfection', value })}
+        />
 
-      <QuantityControl
-        value={form.quantity}
-        unit={form.unit}
-        consumedPercentage={form.consumedPercentage}
-        onChangeQuantity={(value) => dispatch({ type: 'setQuantity', value })}
-        onChangeUnit={(value) => dispatch({ type: 'setUnit', value })}
-        onChangeConsumed={(value) =>
-          dispatch({ type: 'setConsumedPercentage', value })
-        }
-      />
-      <View style={styles.formSwitchGroup}>
-        <View style={styles.controlContainer}>
-        <SwitchRow
-          icon="food-variant"
-          title="Open"
-          description='Open ingredients are automatically included in "expiring soon".'
-          value={form.isOpen}
-          onChange={(value) => dispatch({ type: 'setOpen', value })}
-        /> 
-      </View>  
-      {/* display FROZEN option only for FRESH ITEMS*/}
-      { isFreshConfection(form.confection) ? (
-      <View style={styles.controlContainer}>
-          <SwitchRow
-          icon="snowflake"
-          title="Frozen"
-          description="Frozen fresh ingredients are moved to freezer and can last up to 6 months."
-          value={form.isFrozen}
-          onChange={(value) => dispatch({ type: 'setFrozen', value })}
-        />  
+        <View style={styles.formHelperRow}>
+          <Ionicons name="information-circle-outline" size={16} color="#64748b" />
+            <Text style={styles.formHelperText}>
+              Fresh ingredients have a Ripeness Status that is checked automatically every 3 days. 
+            </Text>
         </View>
+
+        {isFreshConfection(form.confection) ? (
+            <RipenessSelector
+              value={form.ripeness}
+              onChange={(value) => dispatch({ type: 'setRipeness', value })}
+            />
         ) : null}
-      </View>  
 
-      <TouchableOpacity style={styles.mainButton} onPress={saveIngredient}>
-        <Text style={styles.buttonText}>
-          {isEdit ? 'Update Ingredient' : 'Add Ingredient'}
-        </Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Dietary Needs</Text>
+        <DietaryCheckboxGroup
+            selected={form.dietaryTags}
+            onToggle={(value) => dispatch({ type: 'toggleDietaryTag', value })}
+        />
 
-      {isEdit && onCancel ? (
-        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      ) : null}
+        <EstimateDatePicker
+          value={form.expiration}
+          onChange={setText('expiration')}
+        />
 
-      {isEdit && onDelete ? (
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={onDelete}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>Delete Ingredient</Text>
-        </TouchableOpacity>
-      ) : null}
+        <QuantityControl
+            value={form.quantity}
+            unit={form.unit}
+            consumedPercentage={form.consumedPercentage}
+            onChangeQuantity={(value) => dispatch({ type: 'setQuantity', value })}
+            onChangeUnit={(value) => dispatch({ type: 'setUnit', value })}
+            onChangeConsumed={(value) =>
+              dispatch({ type: 'setConsumedPercentage', value })
+            }
+        />
+        <View style={styles.formSwitchGroup}>
+          <View style={styles.controlContainer}>
+           <SwitchRow
+              icon="food-variant"
+              title="Open"
+              description='Open ingredients are automatically included in "expiring soon".'
+              value={form.isOpen}
+              onChange={(value) => dispatch({ type: 'setOpen', value })}
+            /> 
+          </ View>  
+
+          { isFreshConfection(form.confection) || form.confection === 'packaged' ? (
+          <View style={styles.controlContainer}>
+              <SwitchRow
+              icon="snowflake"
+              title="Frozen"
+              description="Frozen ingredients are moved to freezer and can last up to 6 months."
+              value={form.isFrozen}
+              onChange={(value) => dispatch({ type: 'setFrozen', value })}
+            />  
+            </View>
+            ) : null}
+          </View>  
+
+          <TouchableOpacity style={styles.mainButton} onPress={saveIngredient}>
+            <Text style={styles.buttonText}>
+              {isEdit ? 'Update Ingredient' : 'Add Ingredient'}
+            </Text>
+          </TouchableOpacity>
+
+          {isEdit && onCancel ? (
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          ) : null}
+
+          {isEdit && onDelete ? (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={onDelete}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>Delete Ingredient</Text>
+            </TouchableOpacity>
+          ) : null}
+
     </ScrollView>
   );
 };

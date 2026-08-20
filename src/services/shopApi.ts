@@ -87,8 +87,10 @@ const elementToShop = (element: OverpassElement): Shop | null => {
 
 export const fetchNearbyShops = async (
   latitude: number,
-  longitude: number
+  longitude: number,
+  signal?: AbortSignal
 ): Promise<Shop[]> => {
+
   const body = overpassQuery(latitude, longitude);
 
   const response = await fetch(OVERPASS_URL, {
@@ -97,6 +99,7 @@ export const fetchNearbyShops = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: `data=${encodeURIComponent(body)}`,
+    signal,
   });
 
   if (!response.ok) {

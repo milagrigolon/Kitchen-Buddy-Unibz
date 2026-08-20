@@ -1,5 +1,3 @@
-// src/theme/styles.ts
-
 import { Platform, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 
@@ -103,6 +101,39 @@ export const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#0f172a',
+    },
+    cameraContainer: {
+        flex: 1,
+    },
+    permissionContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+        backgroundColor: '#f8fafc',
+    },
+    permissionText: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
+        color: '#0f172a',
+    },
+    fallbackButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#e2e8f0',
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        gap: 6,
+    },
+    fallbackButtonText: {
+        color: '#0f172a',
+        fontWeight: '600',
     },
     tabBar: {
         height: 76,

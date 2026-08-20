@@ -14,11 +14,15 @@ type EditStackParamList = {
 
 type EditScreenProps = NativeStackScreenProps<EditStackParamList, 'EditIngredient'>;
 
+/**
+ * EditScreen is a component for editing an existing ingredient.
+ * It provides a form pre-filled with the ingredient's current data, allowing 
+ * users to update or delete the ingredient.
+ */
 export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const { ingredient } = route.params;
   const { updateIngredient, deleteIngredient } = useIngredients();
 
-  // state for managing the confirmation of deletion and success messages
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [successState, setSuccessState] = useState<{ title: string; description: string } | null>(null);
 
@@ -43,7 +47,6 @@ export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => 
     });
   };
 
-  // SUCCESS MESSAGE (Update or Delete)
   if (successState) {
     return (
       <View style={styles.flex1}>
@@ -57,7 +60,6 @@ export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => 
     );
   }
 
-  // CONFIRM ELIMINATION VIEW
   if (isConfirmingDelete) {
     return (
       <View style={styles.flex1}>
@@ -68,7 +70,6 @@ export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => 
             Are you sure you want to delete "{ingredient.name}"?
           </Text>
 
-          {/* Confirm Delete */}
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={handleConfirmDelete}
@@ -77,7 +78,6 @@ export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => 
             <Text style={styles.buttonText}>Confirm Delete</Text>
           </TouchableOpacity>
 
-          {/* Tasto Cancel */}
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => setIsConfirmingDelete(false)}
@@ -90,7 +90,6 @@ export const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => 
     );
   }
 
-  // NORMAL EDIT FORM VIEW
   return (
     <View style={styles.flex1}>
       <BackButton onPress={() => navigation.goBack()} title="Go back" />

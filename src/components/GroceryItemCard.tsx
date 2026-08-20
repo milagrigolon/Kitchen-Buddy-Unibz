@@ -17,7 +17,6 @@ export const GroceryItemCard: React.FC<GroceryItemCardProps> = ({ item, onBuy, o
     <View style={styles.cardRow}>
       <Text style={styles.cardTitle}>{item.name}</Text>
     </View>
-    <Text style={styles.cardLoc}>Qty: {item.quantity ?? 1} {item.unit ?? 'pcs'}</Text>
 
     <View style={styles.groceryCardActionsRow}>
       <TouchableOpacity

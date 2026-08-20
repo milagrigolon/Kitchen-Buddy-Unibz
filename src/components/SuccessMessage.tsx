@@ -9,6 +9,10 @@ interface SuccessMessageProps {
   onContinue: () => void;
 }
 
+/**
+ * A reusable component that displays a success message with a title, 
+ * description, and a "Continue" button.
+ */
 export const SuccessMessage: React.FC<SuccessMessageProps> = ({
   title,
   description,

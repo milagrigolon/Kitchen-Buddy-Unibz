@@ -1,5 +1,3 @@
-// Reusable selector used for category, location, confection and similar choices.
-
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -59,6 +57,9 @@ const renderOptionIcon = (option: Option, isSelected: boolean): React.ReactNode 
     );
 };
 
+/**
+ * Reusable selector used for category, location, confection and similar choices.
+ */
 export const ChipSelector = <T extends string>({
     options,
     selectedValue,

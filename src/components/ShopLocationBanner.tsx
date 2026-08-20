@@ -9,6 +9,10 @@ interface ShopLocationBannerProps {
   nearbyShop: Shop | null;
 }
 
+/**
+ * ShopLocationBanner component displays information about the nearby shop, 
+ * if any, and provides suggestions for other nearby stores.
+ */
 export const ShopLocationBanner: React.FC<ShopLocationBannerProps> = ({
   nearbyShop,
 }) => {

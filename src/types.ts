@@ -1,12 +1,12 @@
 // shared TYPES (Domain Model) for Kitchen Buddy
 
-export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'other';
+export type Category = 'fruit' | 'vegetable' | 'dairy' | 'fish' | 'meat' | 'liquid' | 'grains' | 'bakery' | 'other';
 export type Location = 'fridge' | 'freezer' | 'pantry';
 export type ConfectionType = 'fresh' | 'canned' | 'frozen' | 'cured'| 'packaged';
 export type RipenessStatus = 'green' | 'ripe' | 'advanced' | 'too ripe';
 export type Unit = 'pcs' | 'kg' | 'l';
 export type ShopType = 'general' | 'butcher' | 'fishmonger'|'bakery'|'greengrocer';
-export type QueryMode = 'all' | 'missing' | 'recent_added' | 'recently_bought' | 'ripeness_check';
+export type QueryMode = 'all' | 'recent_added' | 'recently_bought' ;
 export type DietaryTag = 'vegan' | 'vegetarian' | 'halal' | 'kosher' | 'gluten-free'| 'lactose-free' ;
 
 
@@ -24,12 +24,11 @@ export type Ingredient = {
   lastRipenessCheckAt?: string | null;
   isOpen?: boolean;
   isFrozen?: boolean;
-  quantity?: number;
+  quantity?: number | null;
   unit?: Unit;
   consumedPercentage?: number;
   barcode?: string | null;
   brand?: string | null;
-  imageUrl?: string | null;
   isRecentlyBought?: boolean;
   dietaryTags?: DietaryTag[];
 };

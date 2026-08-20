@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { BackButton } from './BackButton';
-import { COLORS } from '../theme/styles';
+import { COLORS, styles } from '../theme/styles';
 
 interface BarcodeScannerModalProps {
   visible: boolean;
@@ -15,6 +15,7 @@ interface BarcodeScannerModalProps {
  * BarcodeScannerModal renders a full-screen camera overlay to scan product barcodes.
  * Features a dedicated overlay header with a clear Back button to exit camera mode.
  */
+
 export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   visible,
   onClose,
@@ -86,39 +87,3 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0f172a',
-  },
-  cameraContainer: {
-    flex: 1,
-  },
-  permissionContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#f8fafc',
-  },
-  permissionText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#0f172a',
-  },
-  fallbackButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#e2e8f0',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    gap: 6,
-  },
-  fallbackButtonText: {
-    color: '#0f172a',
-    fontWeight: '600',
-  },
-});

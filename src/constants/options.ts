@@ -1,4 +1,11 @@
-import { Category, ConfectionType, Location, RipenessStatus, Shop, Unit, QueryOption} from '../types';
+/**
+ * constants/options.ts 
+ * contains the definitions for various option lists used throughout the application, 
+ * such as categories, locations, confections, dietary options, ripeness levels, and default shops. 
+ * These constants are used to populate dropdowns and selection components in the UI.
+ */
+
+import { Category, ConfectionType, Location, DietaryTag, RipenessStatus, Shop, Unit, QueryOption} from '../types';
 
 export type OptionItem<T extends string> = {
   label: string;
@@ -13,6 +20,8 @@ export const CATEGORIES: OptionItem<Category>[] = [
   { label: 'Dairy', value: 'dairy', icon: 'cheese', iconFamily: 'material' },
   { label: 'Fish', value: 'fish', icon: 'fish-sharp', iconFamily: 'ionicons' },
   { label: 'Meat', value: 'meat', icon: 'food-steak', iconFamily: 'material' },
+  { label: 'Grains', value: 'grains', icon: 'barley', iconFamily: 'material' },
+  { label: 'Bakery', value: 'bakery', icon: 'bread-slice', iconFamily: 'material' },
   { label: 'Liquid', value: 'liquid', icon: 'water', iconFamily: 'material' },
   { label: 'Other', value: 'other', icon: 'basket-shopping', iconFamily: 'fontawesome' },
 ];
@@ -29,6 +38,15 @@ export const CONFECTIONS: OptionItem<ConfectionType>[] = [
   { label: 'Frozen', value: 'frozen', icon: 'snowflake', iconFamily: 'material' },
   { label: 'Cured', value: 'cured', icon: 'sausage', iconFamily: 'material' },
   { label: 'Packaged', value: 'packaged', icon: 'package-variant', iconFamily: 'material' },
+];
+
+export const DIETARY_OPTIONS: { value: DietaryTag; label: string }[] = [
+  { value: 'vegan', label: 'Vegan' },
+  { value: 'vegetarian', label: 'Vegetarian' },
+  { value: 'halal', label: 'Halal' },
+  { value: 'kosher', label: 'Kosher' },
+  { value: 'gluten-free', label: 'Gluten-free' },
+  { value: 'lactose-free', label: 'Lactose-free' },
 ];
 
 export const RIPENESS_LEVELS: OptionItem<RipenessStatus>[] = [
@@ -90,7 +108,11 @@ export const QUERY_OPTIONS: QueryOption[] = [
   { label: 'Recently Bought', value: 'recently_bought' },
 ];
 
+export const DEFAULT_UNITS: Unit[] = ['pcs', 'kg', 'l'];
+
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export const MAX_DISTANCE_METERS = 200;
+export const OPEN_ITEM_DAYS = 4;
+export const RIPENESS_CHECK_DAYS = 3;
 
-export const DEFAULT_UNITS: Unit[] = ['pcs', 'kg', 'l'];
+

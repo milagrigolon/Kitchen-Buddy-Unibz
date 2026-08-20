@@ -28,15 +28,12 @@ export const ExpiringScreen: React.FC<ExpiringScreenProps> = ({ navigation }) =>
   const numColumns = width >= 760 ? 2 : 1;
 
   const expiringIngredients = useMemo(() => {
-    // 1. filter ingredients based on the expiring days
     const baseExpiring = filterExpiringWithin(ingredients, daysThreshold);
 
-    // 2. if no text, then render the list
     if (!searchTerm.trim()) {
       return baseExpiring;
     }
 
-    // 3. otherwise filter also by name
     const cleanSearch = searchTerm.toLowerCase().trim();
     return baseExpiring.filter((item) =>
       item.name.toLowerCase().includes(cleanSearch)

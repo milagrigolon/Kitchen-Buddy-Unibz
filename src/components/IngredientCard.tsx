@@ -27,13 +27,19 @@ const statusTags = (ingredient: Ingredient): string[] => {
   ].filter(Boolean);
 };
 
+/**
+ * IngredientCard component displays a small card for an ingredient, 
+ * showing its name, brand, category, location, expiration date, and status tags. 
+ * It also indicates if the ingredient is frozen, open, or has missing details. 
+ * The card is clickable and triggers the onPress callback when pressed.
+ */
+
 export const IngredientCard: React.FC<IngredientCardProps> = ({
   ingredient,
   onPress,
 }) => {
   const missingDetails = hasMissingDetails(ingredient);
   const shouldCheckRipeness = needsRipenessCheck(ingredient);
-  const warningText = missingDetails ? 'Missing details' : 'Check ripeness';
 
   return (
     <TouchableOpacity
@@ -68,19 +74,19 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({
         </View>
 
       <View style={styles.badgesColumn}>
-        {/* 1. BADGE RIPENESS*/}
+
         {shouldCheckRipeness && (
           <View style={styles.ripenessBadge}>
             <Text style={styles.ripenessText}>Check ripeness</Text>
           </View>
         )}
 
-        {/* 2. BADGE MISSING DETAILS*/}
         {missingDetails && (
           <View style={styles.missingDetailsBadge}>
             <Text style={styles.missingDetailsText}>Missing details</Text>
           </View>
         )}
+
       </View>
 
       </View>

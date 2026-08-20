@@ -34,6 +34,12 @@ const applyQueryMode = (
   return ingredients;
 };
 
+/**
+ * MyItemsScreen displays the user's ingredients, allowing filtering 
+ * by search term, location, category, and confection type.
+ * It also provides options to view recently added (limited to 5) or recently bought 
+ * ingredients.
+ */
 export const MyItemsScreen: React.FC<MyItemsScreenProps> = ({ navigation }) => {
   const { ingredients } = useIngredients();
   const { width } = useWindowDimensions();

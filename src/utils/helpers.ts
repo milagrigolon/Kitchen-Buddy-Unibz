@@ -1,21 +1,13 @@
-// Pure helper functions for Kitchen Buddy.
-// Screens call these functions to keep UI code readable and state updates immutable.
+import { Category, ConfectionType, DietaryTag, GroceryItem, Ingredient, Location, RipenessStatus, Shop, Unit } from '../types';
+import { MS_PER_DAY, OPEN_ITEM_DAYS, RIPENESS_CHECK_DAYS} from '../constants/options';
 
-import {
-  Category,
-  ConfectionType,
-  DietaryTag,
-  GroceryItem,
-  Ingredient,
-  Location,
-  RipenessStatus,
-  Shop,
-  Unit,
-} from '../types';
-import { MS_PER_DAY } from './constants';
-
-const OPEN_ITEM_DAYS = 4;
-const RIPENESS_CHECK_DAYS = 3;
+/**
+ * Pure helper functions for Kitchen Buddy.
+ * These functions are designed to be independent of React or any other framework,
+ * and can be used in any JavaScript/TypeScript environment.
+ * They handle tasks such as date calculations, ingredient filtering, 
+ * and data transformations.
+ */
 
 const formatDate = (date: Date): string => {
   const day = String(date.getDate()).padStart(2, '0');
@@ -66,6 +58,18 @@ export const getTodayDateString = (): string => {
   return `${year}-${month}-${day}`;
 };
 
+export const isPastExpiration = (exp: string): boolean => {
+  if (!exp || !exp.trim()) return false;
+
+  const { timestamp } = parseExpiration(exp);
+  if (timestamp === null) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return timestamp < today.getTime();
+};
+
 export const parseExpiration = (exp: string): { finalExp: string; timestamp: number | null } => {
   const cleanExp = exp.trim();
 
@@ -112,7 +116,7 @@ export interface IngredientDraftInput {
   confectionType: ConfectionType | null;
   expiration: string;
   createdAt: string;
-  quantity?: number;
+  quantity?: number | null;
   unit?: Unit;
   consumedPercentage?: number;
   ripeness?: RipenessStatus | null;
@@ -120,7 +124,6 @@ export interface IngredientDraftInput {
   isFrozen?: boolean;
   barcode?: string | null;
   brand?: string | null;
-  imageUrl?: string | null;
   dietaryTags?: DietaryTag[]; 
   previousIngredient?: Ingredient | null;
 }
@@ -208,13 +211,11 @@ export const buildIngredientFromDraft = ({
   isFrozen = false,
   barcode,
   brand,
-  imageUrl,
   dietaryTags,
   previousIngredient,
 }: IngredientDraftInput): Ingredient => {
   const parsed = parseExpiration(expiration);
 
-  // OPEN STATUS
   const openData = applyOpenRules(
     isOpen,
     previousIngredient?.isOpen,
@@ -222,7 +223,6 @@ export const buildIngredientFromDraft = ({
     parsed.timestamp
   );
 
-  // FROZEN STATUS
   const dataBeforeFrozen = isFrozen ? parsed : openData;
   const frozenData = applyFrozenRules(
     isFrozen,
@@ -231,7 +231,6 @@ export const buildIngredientFromDraft = ({
     dataBeforeFrozen.timestamp
   );
 
-  // RIPENESS STATUS
   const { savedRipeness, ripenessCheckedAt } = applyRipenessRules(
     confectionType,
     ripeness,
@@ -257,7 +256,6 @@ export const buildIngredientFromDraft = ({
     isFrozen,
     barcode: barcode?.trim() || null,
     brand: brand?.trim() || null,
-    imageUrl,
     dietaryTags: dietaryTags ?? previousIngredient?.dietaryTags ?? [],
     isRecentlyBought: previousIngredient?.isRecentlyBought ?? false,
   };
@@ -308,7 +306,6 @@ export const filterExpiringWithin = (
   });
 };
 
-// QUERY: ingredients with missing data
 export const hasMissingDetails = (ingredient: Ingredient): boolean => {
   return (
     !ingredient.category ||
@@ -320,7 +317,6 @@ export const hasMissingDetails = (ingredient: Ingredient): boolean => {
   );
 };
 
-// QUERY: recently added ingredients (based on date of entry)
 export const getRecentlyAdded = (ingredients: Ingredient[], limit = 5): Ingredient[] => {
   const sorted = [...ingredients].sort((a, b) => {
     const dateA = new Date(a.createdAt || 0).getTime();
@@ -331,12 +327,10 @@ export const getRecentlyAdded = (ingredients: Ingredient[], limit = 5): Ingredie
   return limit ? sorted.slice(0, limit) : sorted;
 };
 
-// QUERY: recently bought groceries
 export const filterRecentlyBoughtIngredients = (ingredients: Ingredient[]): Ingredient[] => {
   return ingredients.filter((item) => item.isRecentlyBought === true);
 };
 
-// FILTER INGREDIENTS FUNCTION - can be used for every query mode
 export const filterIngredients = (
   ingredients: Ingredient[],
   search = '',
@@ -361,27 +355,24 @@ export const getQuantityStep = (unit: Unit): number => {
   return unit === 'kg' || unit === 'l' ? 0.25 : 1;
 };
 
-/**
- * CHECK for LOW or EMPTY for GROCERIES SUGGESTIONS
- * if the consumed amount is bigger or equal than 75%, then 
- * it is suggested in the "Low stock suggestions"
- */
 export const isLowOrEmpty = (ingredient: Ingredient): boolean => {
   const consumedPercentage = ingredient.consumedPercentage ?? 0;
   
-  /* PREVIOUS LOGIC CHANGED - previously returned also for 0 pcs/kg/l
-  const quantity = ingredient.quantity ?? 0;
-  const unit = ingredient.unit ?? 'pcs';
   if (consumedPercentage >= 75) {
     return true;
   }
-  if (quantity <= 0) {
+
+  if (ingredient.quantity === null || ingredient.quantity === undefined) {
+    return false;
+  }
+
+  const quantity = ingredient.quantity;
+  const unit = ingredient.unit ?? 'pcs';
+
+  if (quantity === 0) {
     return true;
   }
   return unit === 'pcs' ? quantity <= 1 : quantity <= 0.25; 
-  */
-
-  return consumedPercentage >= 75;
 
 };
 
@@ -434,7 +425,7 @@ export const buildBoughtIngredient = (
     confectionType: source?.confectionType ?? null,
     expiration: calculateSuggestedExpiry(groceryItem.name, allIngredients),
     createdAt: new Date().toISOString(),
-    quantity: groceryItem.quantity ?? source?.quantity ?? 1,
+    quantity: null,
     unit: groceryItem.unit ?? source?.unit ?? 'pcs',
     consumedPercentage: 0,
     ripeness: null,
@@ -442,14 +433,9 @@ export const buildBoughtIngredient = (
     isFrozen: source?.isFrozen ?? false,
     barcode: source?.barcode ?? null,
     brand: source?.brand ?? null,
-    imageUrl: source?.imageUrl ?? null,
   });
 };
 
-/**
- * Determines whether a grocery item matches a specific store type based on
- * its assigned category or predefined product name keywords.
- */
 const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
   const text = item.name.toLowerCase();
   const dairyNames = /milk|yogurt|cheese|butter|cream|latte|formaggio|burro|panna/;
@@ -466,6 +452,8 @@ const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
       item.category === 'vegetable' ||
       item.category === 'dairy' ||
       item.category === 'liquid' ||
+      item.category === 'grains' ||   
+      item.category === 'bakery' ||
       dairyNames.test(text) ||
       pantryNames.test(text) ||
       bakeryNames.test(text) ||
@@ -492,7 +480,7 @@ const groceryFitsShop = (item: GroceryItem, shop: Shop): boolean => {
   }
 
   if (shop.type === 'bakery') {
-    return bakeryNames.test(text);
+    return item.category === 'bakery' || bakeryNames.test(text);
   }
 
   return false;
@@ -517,11 +505,6 @@ export const sortGroceriesForShop = (items: GroceryItem[], shop: Shop | null): G
   });
 };
 
-
-/**
- * Returns a list of default product suggestions tailored to the specific
- * type of nearby store selected.
- */
 export const nearbyStoreSuggestions = (shop: Shop | null): string[] => {
   if (!shop) {
     return [];

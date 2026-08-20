@@ -10,7 +10,7 @@ interface DaysThresholdControlProps {
 const DAY_OPTIONS = [3, 7, 14];
 
 /**
- * DaysThresholdControl chooses how soon the user wants to see ingredient entries.
+ * DaysThresholdControl chooses how soon the user wants to see expiring ingredient entries.
  */
 export const DaysThresholdControl: React.FC<DaysThresholdControlProps> = ({ value, onChange }) => (
   <View style={styles.controlContainer}>

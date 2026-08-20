@@ -1,14 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  ListRenderItem,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Alert, FlatList, ListRenderItem, Text, TextInput, TouchableOpacity, useWindowDimensions, View} from 'react-native';
 import { GroceryItemCard } from '../components/GroceryItemCard';
 import { Header } from '../components/Header';
 import { ShopLocationBanner } from '../components/ShopLocationBanner';
@@ -17,6 +8,10 @@ import { COLORS, styles } from '../theme/styles';
 import { GroceryItem } from '../types';
 import { nearbyStoreSuggestions, sortGroceriesForShop } from '../utils/helpers';
 
+/**
+ * GroceryScreen displays the user's grocery list, along with suggestions 
+ * for low-stock ingredients and nearby store suggestions.
+ */
 export const GroceryScreen: React.FC = () => {
   const {
     groceries,
