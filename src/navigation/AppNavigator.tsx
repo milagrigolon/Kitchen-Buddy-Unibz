@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { AddScreen } from '../screens/AddScreen';
 import { ExpiringScreen } from '../screens/ExpiringScreen';
@@ -23,17 +23,9 @@ type MyItemsStackParamList = {
   EditIngredient: { ingredient: Ingredient };
 };
 
-/**
- * AppNavigator component that sets up the navigation structure for the app.
- * Handles navigation between different screens (Add, Expiring, My Items, Groceries)
- * and manages the bottom tab navigator.
- * It also handles the case when the app is opened from a nearby shop, 
- * navigating to the Groceries screen.
- */
-
 const Tab = createBottomTabNavigator();
-const ExpiringStack = createNativeStackNavigator<ExpiringStackParamList>();
-const MyItemsStack = createNativeStackNavigator<MyItemsStackParamList>();
+const ExpiringStack = createStackNavigator<ExpiringStackParamList>();
+const MyItemsStack = createStackNavigator<MyItemsStackParamList>();
 
 const ExpiringNavigator: React.FC = () => (
   <ExpiringStack.Navigator>
@@ -61,22 +53,22 @@ export const AppNavigator: React.FC = () => {
   const navigationRef = useRef<NavigationRef | null>(null);
   const [openedFromShop, setOpenedFromShop] = useState('');
 
-const setNavigationRef = (ref: unknown): void => {
-  const possibleRef = ref as NavigationRef | null;
-  navigationRef.current = possibleRef && typeof possibleRef.navigate === 'function'
-    ? possibleRef
-    : null;
-};
+  const setNavigationRef = (ref: unknown): void => {
+    const possibleRef = ref as NavigationRef | null;
+    navigationRef.current = possibleRef && typeof possibleRef.navigate === 'function'
+      ? possibleRef
+      : null;
+  };
 
-useEffect(() => {
-  const navigation = navigationRef.current;
-  const isReady = navigation?.isReady ? navigation.isReady() : Boolean(navigation);
+  useEffect(() => {
+    const navigation = navigationRef.current;
+    const isReady = navigation?.isReady ? navigation.isReady() : Boolean(navigation);
 
-  if (nearbyShop && openedFromShop !== nearbyShop.id && navigation && isReady) {
-    setOpenedFromShop(nearbyShop.id);
-    navigation.navigate('Groceries');
-  }
-}, [nearbyShop, openedFromShop]);
+    if (nearbyShop && openedFromShop !== nearbyShop.id && navigation && isReady) {
+      setOpenedFromShop(nearbyShop.id);
+      navigation.navigate('Groceries');
+    }
+  }, [nearbyShop, openedFromShop]);
 
   if (status === 'booting') {
     return (
