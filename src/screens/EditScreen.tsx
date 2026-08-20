@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 import { IngredientForm } from '../components/IngredientForm';
 import { BackButton } from '../components/BackButton';
 import { SuccessMessage } from '../components/SuccessMessage';
@@ -12,7 +12,7 @@ type EditStackParamList = {
   EditIngredient: { ingredient: Ingredient };
 };
 
-type EditScreenProps = NativeStackScreenProps<EditStackParamList, 'EditIngredient'>;
+type EditScreenProps = StackScreenProps<EditStackParamList, 'EditIngredient'>;
 
 /**
  * EditScreen is a component for editing an existing ingredient.

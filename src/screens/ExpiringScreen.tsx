@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { TextInput, useWindowDimensions, View } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 import { DaysThresholdControl } from '../components/DaysThresholdControl';
 import { Header } from '../components/Header';
 import { IngredientList } from '../components/IngredientList';
@@ -14,7 +14,7 @@ type ExpiringStackParamList = {
   EditIngredient: { ingredient: Ingredient };
 };
 
-type ExpiringScreenProps = NativeStackScreenProps<ExpiringStackParamList, 'ExpiringHome'>;
+type ExpiringScreenProps = StackScreenProps<ExpiringStackParamList, 'ExpiringHome'>;
 
 /**
  * ExpiringScreen shows ingredients that are nearing their expiration date,

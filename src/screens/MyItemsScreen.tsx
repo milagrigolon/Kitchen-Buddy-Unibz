@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 import { ChipSelector } from '../components/ChipSelector';
 import { Header } from '../components/Header';
 import { IngredientList } from '../components/IngredientList';
@@ -15,8 +15,7 @@ type MyItemsStackParamList = {
   EditIngredient: { ingredient: Ingredient };
 };
 
-type MyItemsScreenProps =
-  NativeStackScreenProps<MyItemsStackParamList, 'MyItemsHome'>;
+type MyItemsScreenProps = StackScreenProps<MyItemsStackParamList, 'MyItemsHome'>;
 
 const applyQueryMode = (
   ingredients: Ingredient[],
