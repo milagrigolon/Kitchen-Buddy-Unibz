@@ -126,7 +126,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case 'setLocation':
       return { ...state, location: action.value };
 
-    case 'setConfection':
+    case 'setConfection': {
       const newConfection = action.value;
       const canBeFrozen = isFreshConfection(newConfection) || newConfection === 'packaged';
 
@@ -136,6 +136,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         isFrozen: canBeFrozen ? state.isFrozen : false,
         ripeness: isFreshConfection(newConfection) ? state.ripeness : null,
       };
+    }
 
     case 'setQuantity':
       return { ...state, quantity: action.value };
