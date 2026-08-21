@@ -73,22 +73,19 @@ export const IngredientCard: React.FC<IngredientCardProps> = ({
           ))}
         </View>
 
-      <View style={styles.badgesColumn}>
+        <View style={styles.badgesColumn}>
+          {shouldCheckRipeness && (
+            <View style={styles.ripenessBadge}>
+              <Text style={styles.ripenessText}>Check ripeness</Text>
+            </View>
+          )}
 
-        {shouldCheckRipeness && (
-          <View style={styles.ripenessBadge}>
-            <Text style={styles.ripenessText}>Check ripeness</Text>
-          </View>
-        )}
-
-        {missingDetails && (
-          <View style={styles.missingDetailsBadge}>
-            <Text style={styles.missingDetailsText}>Missing details</Text>
-          </View>
-        )}
-
-      </View>
-
+          {missingDetails && (
+            <View style={styles.missingDetailsBadge}>
+              <Text style={styles.missingDetailsText}>Missing details</Text>
+            </View>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );

@@ -8,16 +8,17 @@ import { IngredientForm } from '../components/IngredientForm';
 import { useIngredients } from '../context/AppContext';
 import { styles } from '../theme/styles';
 import { Ingredient } from '../types';
-import { fetchProductByBarcode, BarcodeFetchError } from '../services/openFoodFacts';
+import { BarcodeFetchError, BarcodeScanSuggestion, fetchProductByBarcode } from '../services/openFoodFacts';
 
 /**
- * AddScreen provides the entry form for adding a new ingredient,
- * with the barcode scan button placed prominently under the header.
+ * AddScreen is the main screen used to add a new ingredient, 
+ * manually or from a barcode scan.
  */
+
 export const AddScreen: React.FC = () => {
   const { addIngredient } = useIngredients();
   const [isScannerVisible, setIsScannerVisible] = useState(false);
-  const [prefillData, setPrefillData] = useState<Awaited<ReturnType<typeof fetchProductByBarcode>>>(null);
+  const [prefillData, setPrefillData] = useState<BarcodeScanSuggestion | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSave = (ingredient: Ingredient): void => {
@@ -30,34 +31,32 @@ export const AddScreen: React.FC = () => {
     setIsScannerVisible(true);
   };
 
-const handleBarcodeScanned = async (barcode: string): Promise<void> => {
-  try {
+  const handleBarcodeScanned = async (barcode: string): Promise<void> => {
+    try {
+      const suggestion = await fetchProductByBarcode(barcode);
 
-    const suggestion = await fetchProductByBarcode(barcode);
+      if (!suggestion) {
+        Alert.alert('Barcode scan', 'No product information was found for this barcode.');
+        return;
+      }
 
-    if (!suggestion) {
-      Alert.alert('Barcode scan', 'No product information was found for this barcode.');
-      return;
+      setPrefillData({
+        ...suggestion,
+        barcode,
+      });
+    } catch (error) {
+      if (error instanceof BarcodeFetchError) {
+        Alert.alert(
+          'Barcode scan',
+          'Could not reach OpenFoodFacts. Check your connection and try again.'
+        );
+      } else {
+        Alert.alert('Barcode scan', 'Something went wrong while scanning. Please try again.');
+      }
+    } finally {
+      setIsScannerVisible(false);
     }
-
-    setPrefillData({
-      ...suggestion,
-      barcode,
-    });
-  } catch (error) {
-
-    if (error instanceof BarcodeFetchError) {
-      Alert.alert(
-        'Barcode scan',
-        'Could not reach OpenFoodFacts. Check your connection and try again.'
-      );
-    } else {
-      Alert.alert('Barcode scan', 'Something went wrong while scanning. Please try again.');
-    }
-  } finally {
-    setIsScannerVisible(false);
-  }
-};
+  };
 
   if (showSuccess) {
     return (
@@ -74,18 +73,19 @@ const handleBarcodeScanned = async (barcode: string): Promise<void> => {
 
   return (
     <View style={styles.flex1}>
-      <Header/>
-        <View style={styles.addScreenScanBarcodeWrapper}>
-          <TouchableOpacity
-            style={styles.addScreenScanBarcodeButton}
-            onPress={handleScanBarcode}
-          >
-            <Ionicons name="barcode-outline" size={22} color="#ffffff" />
-            <Text style={styles.addScreenScanBarcodeText}>
-              Scan Barcode
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <Header />
+
+      <View style={styles.addScreenScanBarcodeWrapper}>
+        <TouchableOpacity
+          style={styles.addScreenScanBarcodeButton}
+          onPress={handleScanBarcode}
+        >
+          <Ionicons name="barcode-outline" size={22} color="#ffffff" />
+          <Text style={styles.addScreenScanBarcodeText}>
+            Scan Barcode
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <IngredientForm onSave={handleSave} isEdit={false} prefillData={prefillData} />
 
@@ -94,7 +94,6 @@ const handleBarcodeScanned = async (barcode: string): Promise<void> => {
         onClose={() => setIsScannerVisible(false)}
         onBarcodeScanned={handleBarcodeScanned}
       />
-      
     </View>
   );
 };

@@ -1,7 +1,6 @@
 
 /**
- * AppContext handles global state for ingredients, groceries 
- * and nearby-shop detection.
+ *  AppContext is the shared app state for ingredients, groceries and nearby-shop detection.
  */
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
@@ -12,7 +11,7 @@ import { fetchNearbyShops } from '../services/shopApi';
 import { GroceryItem, Ingredient, Shop } from '../types';
 import { buildBoughtIngredient, isLowOrEmpty } from '../utils/helpers';
 
-// MOCK INGREDIENTS FOR TESTING
+// MOCK INGREDIENTS FOR TESTING - uncomment and add to state to test
 import { MOCK_RIPENESS_TEST_INGREDIENTS } from '../constants/mockIngredients';
 
 interface AppContextType {
@@ -137,17 +136,19 @@ const quickGroceryItem = (name: string): GroceryItem => {
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  
   const [ingredients, setIngredients] =
     usePersistentState<Ingredient[]>('kitchen-buddy-ingredients', []);
 
   const [groceries, setGroceries] =
     usePersistentState<GroceryItem[]>('kitchen-buddy-groceries', []);
-  // This state is local to the app behavior but persisted so that a handled low-stock
-  // suggestion does not reappear after the user buys or removes the grocery item.
+
   const [handledLowStockIngredientIds, setHandledLowStockIngredientIds] =
     usePersistentState<string[]>('kitchen-buddy-handled-low-stock', []);
+  
   const [nearbyShop, setNearbyShop] = useState<Shop | null>(null);
-  const [status, setStatus] = useState<'booting' | 'ready'>('ready');
+  
+  const [status, setStatus] = useState<'booting' | 'ready'>('booting');
 
   useEffect(() => {
 
@@ -326,7 +327,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const listedIngredientIds = new Set(
       groceries
         .map((item) => item.sourceIngredientId)
-        .filter((id): id is string => id !== null)
+        .filter((id): id is string => typeof id === 'string')
     );
 
     const handledIds = new Set(handledLowStockIngredientIds);

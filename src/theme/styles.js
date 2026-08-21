@@ -51,14 +51,13 @@ export const styles = StyleSheet.create({
     headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-},
+    },
     headerTitle: {
         color: COLORS.white,
         fontSize: 25,
         fontWeight: 'bold',
         marginHorizontal: 3,
         fontFamily: FONT_FAMILY,
-
     },
     headerSubtitle: {
     color: COLORS.white,
@@ -66,7 +65,7 @@ export const styles = StyleSheet.create({
     fontWeight: 500,
     marginTop: 5,
     textAlign: 'center',
-},
+    },
     formPadding: {
         padding: 20
     },
@@ -346,7 +345,7 @@ export const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
         padding: 15,
         marginVertical: 6,
-        marginHorizontal: 4,   // piccolo gap tra le colonne, molto meno di prima
+        marginHorizontal: 4,   
         borderRadius: 20,
         elevation: 2,
         borderLeftWidth: 6,
@@ -474,8 +473,8 @@ export const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 16,
         gap: 8,
-        elevation: 3,                // ombra Android
-        shadowColor: '#000',         // ombra iOS
+        elevation: 3,              
+        shadowColor: '#000',        
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 4,
@@ -690,7 +689,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         height: 20,
         borderRadius: 10,
-        width: 108, // Larghezza fissa identica
+        width: 108, 
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -706,7 +705,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         height: 20,
         borderRadius: 10,
-        width: 108, // Stessa larghezza
+        width: 108, 
         alignItems: 'center',
         justifyContent: 'center',
     },

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { GroceryItem } from '../types';
-import { COLORS, styles } from '../theme/styles';
+import { styles } from '../theme/styles';
 
 interface GroceryItemCardProps {
   item: GroceryItem;
@@ -12,6 +12,7 @@ interface GroceryItemCardProps {
 /**
  * GroceryItemCard shows a single shopping item and the actions to buy or delete it.
  */
+
 export const GroceryItemCard: React.FC<GroceryItemCardProps> = ({ item, onBuy, onDelete }) => (
   <View style={styles.card}>
     <View style={styles.cardRow}>

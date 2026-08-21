@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { BackButton } from './BackButton';
-import { COLORS, styles } from '../theme/styles';
+import { styles } from '../theme/styles';
 
 interface BarcodeScannerModalProps {
   visible: boolean;
