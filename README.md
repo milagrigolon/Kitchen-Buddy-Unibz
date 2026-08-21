@@ -10,7 +10,7 @@ Kitchen Buddy is an Expo React Native application written in TypeScript. It help
 - `expo-location`: requests foreground permission and reads the current position once on app start, to detect a nearby shop.
 - Overpass API (`overpass-api.de`), OpenStreetMap: queried with the user's coordinates to find real supermarkets, butchers, bakeries, fishmongers, and greengrocers within 500m; merged with a small hardcoded fallback shop list.
 - `expo-linear-gradient`: powers the orange gradient app header.
-- `react-navigation` (`@react-navigation/bottom-tabs`, `@react-navigation/native-stack`): bottom tabs plus a push-based edit screen reached from the Expiring and My Items lists.
+- `react-navigation` (`@react-navigation/bottom-tabs`, `@react-navigation/stack`): bottom tabs plus a push-based edit screen reached from the Expiring and My Items lists.
 - `react-native-safe-area-context`: keeps the UI away from notches and unsafe screen areas.
 - `useWindowDimensions`: switches the Expiring and My Items/Grocery lists between a 1-column phone layout and a 2-column layout on wider screens (≥760px).
 - `@expo/vector-icons` (Ionicons, MaterialCommunityIcons, FontAwesome6): icons throughout chips, buttons, and headers.
@@ -48,7 +48,7 @@ The grocery list is re-sorted whenever a nearby shop is detected. Matching uses 
 - **General supermarket**: category `fruit`, `vegetable`, `dairy`, `liquid`, `grains`, or `bakery`, plus dairy/pantry/bakery/fruit/vegetable keywords — the broadest match of the group. There's no dedicated shop type for grains, so grains-category items only match the general supermarket.
 Items that match the current shop's type are sorted before items that don't; within each group, the most recently added item comes first. For example, if the grocery list contains `salmon`, `bread`, and `banana` and the user is near a fishmonger, `salmon` moves to the top while `bread` and `banana` stay visible underneath it.
  
-The `ShopLocationBanner` on the Grocery screen also shows a handful of ready-made suggestions for the detected shop type (e.g. `Meat, Chicken, Sausages` near a butcher), each tappable to quick-add it.
+The Grocery screen also shows a handful of ready-made suggestions for the detected shop type (e.g. `Meat, Chicken, Sausages` near a butcher), each tappable to quick-add it.
  
 ## Input Format And Sample Inputs
  
@@ -133,12 +133,13 @@ Defined in `src/constants/mockIngredients.ts`. Five fabricated ingredients built
 - Tomatoes (Up to Date)	- last checked 2 hours ago -	hidden
 - Canned Beans - confectionType: 'canned', no ripeness -	hidden
 - Strawberries (double badge) -	overdue check and missing data - both badges show
-These are not wired into the running app. They're imported in AppContext.tsx but only referenced inside a commented-out block that would swap the persisted ingredient state for this fixed set, to test badge behavior without manually creating ingredients with specific dates:
+
+These are not wired into the running app. They're imported in AppContext.tsx but not otherwise referenced — the following block can be inserted to swap the persisted ingredient state for this fixed set, to test badge behavior without manually creating ingredients with specific dates:
  
 ```text
 /* MOCK INGREDIENTS FOR TESTING
 const [ingredients, setIngredients] = usePersistentState<Ingredient[]>(
-  'kitchen-buddy-ingredients-v100',
+  'kitchen-buddy-ingredients-v1',
   MOCK_RIPENESS_TEST_INGREDIENTS
 );
 */
@@ -176,12 +177,14 @@ The code favors `map`, `filter`, and `sort` over in-place mutation, and `AppCont
  
 The app does not use background or continuous location tracking. Location is read once, in the foreground, right after the app boots:
  
+- App `status` switches to `'ready'` immediately when this effect starts, before permissions or location are resolved — the UI is never blocked waiting on the shop lookup; ingredients and groceries render right away from `AsyncStorage`, and `nearbyShop` simply stays `null` until it resolves in the background.
 - `Location.requestForegroundPermissionsAsync()` asks for foreground permission on mount.
 - If granted, `Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low })` reads the current position, raced against a 3-second timeout so a slow GPS fix can't hang the app.
 - The resulting coordinates are sent to the Overpass API to fetch real nearby shops, with a 4-second abort timeout; a failed or slow request falls back to an empty list rather than blocking anything.
 - The live Overpass results are merged with a handful of hardcoded `DEFAULT_SHOPS` (used for testing/demo purposes), and the nearest one within `min(shop.radiusMeters, 200m)` is kept.
 - The effect runs exactly once, guarded by a `mounted` flag so it never sets state after the provider unmounts.
 - There is no polling interval — if the user moves to a different shop after launch, the app won't notice until it's restarted.
+
 This keeps the implementation simple and avoids any continuous GPS usage.
  
 ## Source Structure
@@ -329,7 +332,7 @@ Central domain model for Typescript
 - Purpose: unit chips (`pcs`/`kg`/`l`), a +/- stepper with a unit-aware step size, direct numeric text entry (comma-to-dot normalized), and the 0/25/50/75/100% consumed chip row.
 
 `ShopLocationBanner.tsx`
- 
+
 - Props: `nearbyShop: Shop | null`.
 - State: none.
 - Purpose: banner at the top of `GroceryScreen` showing the detected shop's name and type, or "No nearby store detected".
