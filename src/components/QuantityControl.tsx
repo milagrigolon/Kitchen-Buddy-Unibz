@@ -56,6 +56,7 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
   const handleUnitSelect = (selectedOption: Unit) => {
     if (unit !== selectedOption) {
       onChangeUnit(selectedOption);
+      onChangeQuantity(null);
     }
   };
 
