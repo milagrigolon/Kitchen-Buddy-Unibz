@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { styles } from '../theme/styles';
 import { COLORS } from '../theme/styles';
@@ -30,6 +30,11 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
   onChangeConsumed,
 }) => {
   const step = getQuantityStep(unit);
+  const [inputText, setInputText] = useState<string>(value === null ? '' : value.toString());
+
+  useEffect(() => {
+    setInputText(value === null ? '' : value.toString());
+  }, [value]);
 
   const handleIncrement = () => {
     const currentValue = value ?? 0;
@@ -44,11 +49,19 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
   };
 
   const handleQuantityTextChange = (text: string) => {
-    if (!text.trim()) {
+    const formattedText = text.replace(',', '.');
+    
+    const allowedPattern = unit === 'pcs' ? /^\d*$/ : /^\d*\.?\d*$/;
+    if (!allowedPattern.test(formattedText)) return;
+
+    setInputText(formattedText);
+
+    if (!formattedText.trim() || formattedText === '.') {
       onChangeQuantity(null);
       return;
     }
-    const formattedText = text.replace(',', '.');
+    if (formattedText.endsWith('.')) return;
+
     const parsed = parseFloat(formattedText);
     onChangeQuantity(isNaN(parsed) ? null : Math.max(0, parsed));
   };
@@ -57,6 +70,7 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
     if (unit !== selectedOption) {
       onChangeUnit(selectedOption);
       onChangeQuantity(null);
+      setInputText('');
     }
   };
 
@@ -93,7 +107,7 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
             keyboardType="decimal-pad"
             placeholder="0"
             placeholderTextColor={COLORS?.placeholder ?? '#94a3b8'}
-            value={value === null ? '' : value.toString()}
+            value={inputText}
             onChangeText={handleQuantityTextChange}
           />
 
