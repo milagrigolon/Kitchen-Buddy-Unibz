@@ -20,7 +20,13 @@ const CONSUMED_OPTIONS = [0, 25, 50, 75, 100];
 /**
  * QuantityControl manages unit metric selection, dynamic step increments,
  * direct text entry, and consumed percentage tracking
+ * 
+ * Keeps a local `inputText` state mirroring the numeric `value` prop, so the
+ * text field can hold intermediate typing states (e.g. a trailing "." or an
+ * empty string) that wouldn't be valid as a parsed number yet. Syncs back to
+ * `value` via a useEffect whenever the prop changes from outside.
  */
+ 
 export const QuantityControl: React.FC<QuantityControlProps> = ({
   value,
   unit,
