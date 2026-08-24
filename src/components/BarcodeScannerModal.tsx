@@ -26,7 +26,6 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
 
   useEffect(() => {
     if (!visible) {
-      setScanned(false);
       return;
     }
 
