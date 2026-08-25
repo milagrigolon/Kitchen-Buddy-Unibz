@@ -327,12 +327,12 @@ Central domain model for Typescript
 
 `QuantityControl.tsx`
  
-- Props: `value: number`, `unit: Unit`, `consumedPercentage?: number`, `onChangeQuantity`, `onChangeUnit`, `onChangeConsumed?`.
-- State: none — fully controlled from the parent form.
-- Purpose: unit chips (`pcs`/`kg`/`l`), a +/- stepper with a unit-aware step size, direct numeric text entry (comma-to-dot normalized), and the 0/25/50/75/100% consumed chip row.
+- Props: `value: number | null`, `unit: Unit`, `consumedPercentage?: number`, `onChangeQuantity`, `onChangeUnit`, `onChangeConsumed?`.
+- State: local `inputText: string`, mirroring `value` via a `useEffect` keyed on `value`. Needed because the text field can hold states that aren't valid numbers yet (empty string, a trailing `.`), which can't be represented by the numeric `value` prop alone.
+- Purpose: unit chips (`pcs`/`kg`/`l`), a +/- stepper with a unit-aware step size, direct numeric text entry (comma-to-dot normalized, kept in sync with `value` through local state), and the 0/25/50/75/100% consumed chip row. Switching units clears both `inputText` and the quantity.
 
 `ShopLocationBanner.tsx`
-
+ 
 - Props: `nearbyShop: Shop | null`.
 - State: none.
 - Purpose: banner at the top of `GroceryScreen` showing the detected shop's name and type, or "No nearby store detected".
@@ -375,7 +375,8 @@ Central domain model for Typescript
  
 `AddScreen.tsx`
  
-- Purpose: hosts the "Scan Barcode" button and the `IngredientForm` for creating a new ingredient. Owns the barcode flow end-to-end: opens `BarcodeScannerModal`, calls `fetchProductByBarcode`, and distinguishes a genuine "not found" result from a network/server error (`BarcodeFetchError`) to show the right alert. On successful save, shows `SuccessMessage` before returning to a blank form.
+- State: `isScannerVisible`, `prefillData`, `showSuccess`, plus `pendingBarcode: string | null` and `isLookingUp: boolean`, which drive the barcode lookup (see below).
+- Purpose: hosts the "Scan Barcode" button and the `IngredientForm` for creating a new ingredient. Owns the barcode flow end-to-end: opens `BarcodeScannerModal`, which reports each scan synchronously to `handleBarcodeScanned`. That handler only records the barcode into `pendingBarcode` (ignoring the scan if `isLookingUp` is already true), so it can never itself trigger overlapping lookups. A `useEffect` keyed on `pendingBarcode` does the actual async work: calls `fetchProductByBarcode`, distinguishes a genuine "not found" result from a network/server error (`BarcodeFetchError`) to show the right alert, and only closes the scanner (`setIsScannerVisible(false)`) once the lookup has fully settled. The effect's cleanup sets a local `cancelled` flag so a superseded run (e.g. if `pendingBarcode` changes again, or the screen unmounts) can't apply a stale result or alert after the fact. This replaced an earlier version where the lookup ran directly inside the scan callback and closed the modal before the lookup resolved, which could let a second scan start while the first was still in flight and produce two alerts for one scan. On successful save, shows `SuccessMessage` before returning to a blank form.
 
 `EditScreen.tsx`
  
@@ -548,18 +549,32 @@ React
  
 ```text
 AddScreen
-  keeps isScannerVisible and prefillData in local state
+  keeps isScannerVisible, prefillData, pendingBarcode, isLookingUp in local state
   user presses "Scan Barcode"
     -> setIsScannerVisible(true)
 BarcodeScannerModal
   -> asks camera permission via useCameraPermissions()
   -> CameraView detects a barcode -> onBarcodeScanned(barcode) -> onClose()
-AddScreen.handleBarcodeScanned
-  -> fetchProductByBarcode(barcode)
-     - suggestion found -> setPrefillData({ ...suggestion, barcode })
+     (BarcodeScannerModal itself stays synchronous/"dumb" — it doesn't await
+     anything or know about the lookup; onClose() just flips isScannerVisible
+     back to false right away)
+AddScreen.handleBarcodeScanned (sync)
+  -> if isLookingUp is already true, ignore this scan (a lookup is in flight)
+  -> otherwise setPendingBarcode(barcode)
+AddScreen useEffect, keyed on [pendingBarcode]
+  -> if pendingBarcode is null, do nothing
+  -> sets a local `cancelled` flag (false) for this run, setIsLookingUp(true)
+  -> fetchProductByBarcode(pendingBarcode)
+     - suggestion found -> setPrefillData({ ...suggestion, barcode: pendingBarcode })
      - null (genuinely not found) -> Alert "No product information was found"
      - BarcodeFetchError thrown -> Alert "Could not reach OpenFoodFacts..."
-  -> finally: setIsScannerVisible(false)
+     - any check above is skipped if `cancelled` became true first
+  -> finally (only if not cancelled): setIsLookingUp(false), setPendingBarcode(null),
+     setIsScannerVisible(false)
+  -> cleanup (runs if pendingBarcode changes again, or AddScreen unmounts,
+     before the fetch above resolves): sets `cancelled = true`, so a
+     superseded run's result/error can't produce a stale alert or overwrite
+     prefillData with outdated data
 IngredientForm
   -> receives prefillData as a prop
   -> useEffect dispatches { type: 'prefill', value: prefillData } into the reducer,
@@ -572,6 +587,8 @@ React
   -> lists and tabs re-render with the scanned product's data
 ```
  
+Moving the async lookup out of the scan callback and into a `useEffect` (gated by `isLookingUp`) means the scanner can only ever have one lookup in flight at a time, and the modal only closes once that lookup has fully settled.
+
 ### Grocery List And Rebuy
  
 ```text
