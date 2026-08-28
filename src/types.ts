@@ -25,7 +25,7 @@ export type Ingredient = {
   isOpen?: boolean;
   isFrozen?: boolean;
   quantity?: number | null;
-  unit?: Unit;
+  unit?: Unit |null ;
   consumedPercentage?: number;
   barcode?: string | null;
   brand?: string | null;
@@ -37,8 +37,8 @@ export type GroceryItem = {
   id: string;
   name: string;
   category?: Category | null;
-  quantity: number;
-  unit: Unit;
+  quantity: number |null;
+  unit: Unit | null;
   createdAt: string;
   sourceIngredientId?: string | null;
   isBought?: boolean;

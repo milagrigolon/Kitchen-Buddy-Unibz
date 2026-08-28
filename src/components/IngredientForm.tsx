@@ -43,7 +43,7 @@ type FormState = {
   confection: ConfectionType | null;
   expiration: string;
   quantity: number | null;
-  unit: Unit;
+  unit: Unit | null ;
   ripeness: RipenessStatus | null;
   isOpen: boolean;
   isFrozen: boolean;
@@ -59,7 +59,7 @@ type FormAction =
   | { type: 'setLocation'; value: Location | null }
   | { type: 'setConfection'; value: ConfectionType | null }
   | { type: 'setQuantity'; value: number | null }
-  | { type: 'setUnit'; value: Unit }
+  | { type: 'setUnit'; value: Unit | null}
   | { type: 'setRipeness'; value: RipenessStatus | null }
   | { type: 'setOpen'; value: boolean }
   | { type: 'setFrozen'; value: boolean }
@@ -78,7 +78,7 @@ const emptyFormState = (): FormState => {
     confection: null,
     expiration: '',
     quantity: null,
-    unit: 'pcs',
+    unit: null,
     ripeness: null,
     isOpen: false,
     isFrozen: false,
@@ -101,7 +101,7 @@ const formStateFromIngredient = (ingredient?: Ingredient | null): FormState => {
     confection: ingredient.confectionType,
     expiration: ingredient.expirationDate,
     quantity: ingredient.quantity ?? null,
-    unit: ingredient.unit ?? 'pcs',
+    unit: ingredient.unit ?? null,
     ripeness: ingredient.ripeness ?? null,
     isOpen: ingredient.isOpen ?? false,
     isFrozen: ingredient.isFrozen ?? false,

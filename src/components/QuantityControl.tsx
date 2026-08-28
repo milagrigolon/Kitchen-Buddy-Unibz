@@ -7,10 +7,10 @@ import { getQuantityStep } from '../utils/helpers';
 
 interface QuantityControlProps {
   value: number | null;
-  unit: Unit;
+  unit: Unit | null;
   consumedPercentage?: number;
   onChangeQuantity: (next: number | null) => void;
-  onChangeUnit: (next: Unit) => void;
+  onChangeUnit: (next: Unit | null) => void;
   onChangeConsumed?: (next: number) => void;
 }
 
@@ -73,11 +73,16 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
   };
 
   const handleUnitSelect = (selectedOption: Unit) => {
-    if (unit !== selectedOption) {
-      onChangeUnit(selectedOption);
+    if (unit === selectedOption) {
+      onChangeUnit(null);
       onChangeQuantity(null);
       setInputText('');
+      return;
     }
+
+    onChangeUnit(selectedOption);
+    onChangeQuantity(null);
+    setInputText('');
   };
 
   return (
@@ -101,7 +106,7 @@ export const QuantityControl: React.FC<QuantityControlProps> = ({
 
       <View>
         <Text style={styles.label}>
-          Quantity Amount ({unit})
+          Quantity Amount{unit ? ` (${unit})` : ''}
         </Text>
         <View style={styles.quantityContainer}>
           <TouchableOpacity style={styles.specialButton} onPress={handleDecrement}>

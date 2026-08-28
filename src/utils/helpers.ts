@@ -117,7 +117,7 @@ export interface IngredientDraftInput {
   expiration: string;
   createdAt: string;
   quantity?: number | null;
-  unit?: Unit;
+  unit?: Unit | null;
   consumedPercentage?: number;
   ripeness?: RipenessStatus | null;
   isOpen?: boolean;
@@ -351,7 +351,7 @@ export const filterIngredients = (
   });
 };
 
-export const getQuantityStep = (unit: Unit): number => {
+export const getQuantityStep = (unit: Unit | null): number => {
   return unit === 'kg' || unit === 'l' ? 0.25 : 1;
 };
 
@@ -426,7 +426,7 @@ export const buildBoughtIngredient = (
     expiration: calculateSuggestedExpiry(groceryItem.name, allIngredients),
     createdAt: new Date().toISOString(),
     quantity: null,
-    unit: groceryItem.unit ?? source?.unit ?? 'pcs',
+    unit: groceryItem.unit ?? source?.unit ?? null,
     consumedPercentage: 0,
     ripeness: null,
     isOpen: false,

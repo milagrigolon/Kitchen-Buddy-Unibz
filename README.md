@@ -63,7 +63,7 @@ Ingredient input format:
 - Location: selected from Fridge, Freezer, or Pantry.
 - Confection type: selected from Fresh, Canned, Frozen, Cured, or Packaged.
 - Expiration: either an exact date (`DD/MM/YYYY` or `YYYY-MM-DD`) or a relative estimate such as `3 days`, `2 weeks`, or `1 month`. Dates already in the past are rejected on save.
-- Quantity: numeric stepper plus unit. Supported units are `pcs`, `kg`, and `l`; for example `6 pcs`, `0.5 kg`, or `1 l`. Switching units resets the quantity to 0.
+- Quantity: numeric stepper plus unit. Supported units are `pcs`, `kg`, and `l`; for example `6 pcs`, `0.5 kg`, or `1 l`. Switching units resets the quantity to empty/unset.
 - Consumed: 0/25/50/75/100% chip, used to detect low stock.
 - Ripeness: shown only for Fresh confection; values are Green, Ripe, Advanced, and Too Ripe.
 - Dietary tags: any combination of Vegan, Vegetarian, Halal, Kosher, Gluten-free, Lactose-free.
@@ -168,7 +168,7 @@ Most of the app's rules are pure functions that take data in and return new data
 - `getQuantityStep(unit)`: 0.25 for `kg`/`l`, 1 for `pcs`.
 - `isLowOrEmpty(ingredient)`: true once `consumedPercentage >= 75` or `quantity = 0` for unit pcs and `quantity <= 0.25` for kg or l.
 - `calculateSuggestedExpiry(name, allIngredients)`: derives a new expiration for a re-bought item from how long the most recent matching ingredient actually lasted (days between its `createdAt` and its expiration).
-- `buildBoughtIngredient(groceryItem, allIngredients)`: builds the new `Ingredient` created when a grocery item is marked bought, reusing details (category, location, confection, etc.) from a source ingredient where possible. The new ingredient always starts at `quantity: 0` and 0% consumed, regardless of what the grocery item or the source ingredient had.
+- `buildBoughtIngredient(groceryItem, allIngredients)`: builds the new `Ingredient` created when a grocery item is marked bought, reusing details (category, location, confection, etc.) from a source ingredient where possible. The new ingredient always starts at `quantity: null` (unset) and 0% consumed, regardless of what the grocery item or the source ingredient had.
 - `groceryFitsShop(item, shop)` / `sortGroceriesForShop(items, shop)`: shop-type keyword/category matching and the resulting sort order described above
 - `nearbyStoreSuggestions(shop)`: the suggestion list shown for a given shop type.
 The code favors `map`, `filter`, and `sort` over in-place mutation, and `AppContext` always updates state through the functional `setState` form (`setIngredients((current) => ...)`) so updates are based on the latest snapshot rather than a stale closure.
@@ -327,9 +327,9 @@ Central domain model for Typescript
 
 `QuantityControl.tsx`
  
-- Props: `value: number | null`, `unit: Unit`, `consumedPercentage?: number`, `onChangeQuantity`, `onChangeUnit`, `onChangeConsumed?`.
+- Props: `value: number | null`, `unit: Unit | null`, `consumedPercentage?: number`, `onChangeQuantity`, `onChangeUnit`, `onChangeConsumed?`.
 - State: local `inputText: string`, mirroring `value` via a `useEffect` keyed on `value`. Needed because the text field can hold states that aren't valid numbers yet (empty string, a trailing `.`), which can't be represented by the numeric `value` prop alone.
-- Purpose: unit chips (`pcs`/`kg`/`l`), a +/- stepper with a unit-aware step size, direct numeric text entry (comma-to-dot normalized, kept in sync with `value` through local state), and the 0/25/50/75/100% consumed chip row. Switching units clears both `inputText` and the quantity.
+- Purpose: unit chips (`pcs`/`kg`/`l`), a +/- stepper with a unit-aware step size, direct numeric text entry (comma-to-dot normalized, kept in sync with `value` through local state), and the 0/25/50/75/100% consumed chip row. Switching units, or tapping the already-selected unit to deselect it, clears both inputText and the quantity."
 
 `ShopLocationBanner.tsx`
  
